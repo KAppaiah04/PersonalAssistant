@@ -1,59 +1,64 @@
-body {
-  background: linear-gradient(135deg, #1f1c2c, #928dab);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: #eee;
+* {
   margin: 0;
   padding: 0;
-  height: 100vh;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+body {
+  background: linear-gradient(120deg, #1a1a2e, #16213e);
+  color: white;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-}
-
-.container {
-  background: rgba(32, 32, 48, 0.85);
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 480px;
+  justify-content: flex-start;
+  min-height: 100vh;
   text-align: center;
-  box-shadow: 0 0 15px #0ff;
+  padding: 2rem;
 }
-
 h1 {
+  font-size: 3rem;
   margin-bottom: 1rem;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: #00ffff;
-  text-shadow: 0 0 8px #00ffff;
+  color: #00f0ff;
 }
-
-button#startBtn {
-  background: #00ffff;
+#startBtn {
+  padding: 0.8rem 2rem;
+  font-size: 1.2rem;
   border: none;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  font-size: 1.25rem;
+  border-radius: 10px;
+  background: #00f0ff;
+  color: #000;
   cursor: pointer;
-  color: #222;
-  transition: background 0.3s ease;
-  box-shadow: 0 0 10px #00ffff;
+  margin: 1rem 0;
+  transition: transform 0.2s ease;
 }
-
-button#startBtn:hover {
-  background: #00bbbb;
-  box-shadow: 0 0 20px #00bbbb;
+#startBtn:hover {
+  transform: scale(1.05);
 }
-
-.speech-section {
+.section {
   margin-top: 1.5rem;
-  background: rgba(0, 255, 255, 0.15);
+  width: 100%;
+  max-width: 800px;
+}
+.box {
+  margin: 0.5rem auto;
   padding: 1rem;
-  border-radius: 8px;
-  min-height: 60px;
-  font-size: 1.1rem;
-  line-height: 1.4;
-  box-shadow: inset 0 0 10px #00ffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
   word-wrap: break-word;
+}
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.card {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 10px;
+}
+.card h4 {
+  margin-bottom: 0.5rem;
+  color: #00f0ff;
 }
