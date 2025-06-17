@@ -1,48 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jarvis Voice Assistant</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Roboto&display=swap" rel="stylesheet" />
 </head>
-
 <body>
-  <h1>Jarvis Voice Assistant</h1>
-  <button id="startBtn">Activate Jarvis</button>
+  <header>
+    <h1>Jarvis Voice Assistant</h1>
+    <button id="startBtn">Activate Jarvis</button>
+  </header>
 
-  <div class="section">
-    <div class="box">
-      <h2>Your Speech</h2>
-      <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
-    </div>
-    <div class="box">
-      <h2>Jarvis Reply</h2>
-      <p id="jarvisReply"></p>
-    </div>
-  </div>
+  <main>
+    <section class="speech-section">
+      <div class="box">
+        <h2>Your Speech</h2>
+        <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
+      </div>
+      <div class="box">
+        <h2>Jarvis Reply</h2>
+        <p id="jarvisReply"></p>
+      </div>
+    </section>
 
-  <div class="section dashboard">
-    <div class="card">
-      <h4>Upcoming Tasks</h4>
-      <p>Submit budget report</p>
-    </div>
-    <div class="card">
-      <h4>Budget Overview</h4>
-      <p>60% used this month</p>
-    </div>
-    <div class="card">
-      <h4>Recent Notes</h4>
-      <p>AI project progress</p>
-    </div>
-    <div class="card">
-      <h4>Daily Recommendation</h4>
-      <p>Start with tasks closest to deadline</p>
-    </div>
-  </div>
+    <section class="dashboard">
+      <h2>Dashboard Overview</h2>
+      <div class="cards">
+        <div class="card tasks-card">
+          <h3>Upcoming Tasks</h3>
+          <ul id="taskList"></ul>
+        </div>
+        <div class="card budget-card">
+          <h3>Budget Overview</h3>
+          <canvas id="budgetChart" width="300" height="150"></canvas>
+          <p id="budgetSummary"></p>
+        </div>
+        <div class="card notes-card">
+          <h3>Recent Notes</h3>
+          <ul id="notesList"></ul>
+        </div>
+        <div class="card recommendations-card">
+          <h3>Daily Recommendation</h3>
+          <p id="dailyRecommendation">Stay focused and take breaks!</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <small>© 2025 Jarvis Assistant</small>
+  </footer>
 
   <script src="app.js"></script>
 </body>
-
 </html>
