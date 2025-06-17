@@ -1,4 +1,3 @@
-app.js
 const startBtn = document.getElementById('startBtn');
 const userSpeech = document.getElementById('userSpeech');
 const jarvisReply = document.getElementById('jarvisReply');
@@ -42,7 +41,7 @@ function processCommand(command) {
       response = "I am Jarvis, your voice assistant.";
     } else if (actualCommand.includes("time")) {
       const now = new Date();
-      response = `The current time is ${now.getHours()}:${now.getMinutes()}`;
+      response = `The current time is ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
     } else if (actualCommand.includes("date")) {
       const now = new Date();
       response = `Today's date is ${now.toDateString()}`;

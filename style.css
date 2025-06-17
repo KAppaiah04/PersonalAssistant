@@ -1,39 +1,59 @@
 body {
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(to right, #1c1c1c, #323232);
-  color: #ffffff;
+  color: #eee;
   margin: 0;
   padding: 0;
-  display: flex;
   height: 100vh;
+  display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .container {
-  text-align: center;
-  background: #2a2a2a;
+  background: rgba(32, 32, 48, 0.85);
   padding: 2rem;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 480px;
+  text-align: center;
+  box-shadow: 0 0 15px #0ff;
 }
 
-button {
-  padding: 1rem 2rem;
-  background: #00bcd4;
+h1 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #00ffff;
+  text-shadow: 0 0 8px #00ffff;
+}
+
+button#startBtn {
+  background: #00ffff;
   border: none;
-  border-radius: 8px;
-  color: white;
-  font-size: 1rem;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1.25rem;
   cursor: pointer;
+  color: #222;
   transition: background 0.3s ease;
+  box-shadow: 0 0 10px #00ffff;
 }
 
-button:hover {
-  background: #0097a7;
+button#startBtn:hover {
+  background: #00bbbb;
+  box-shadow: 0 0 20px #00bbbb;
 }
 
-p {
+.speech-section {
   margin-top: 1.5rem;
+  background: rgba(0, 255, 255, 0.15);
+  padding: 1rem;
+  border-radius: 8px;
+  min-height: 60px;
   font-size: 1.1rem;
+  line-height: 1.4;
+  box-shadow: inset 0 0 10px #00ffff;
+  word-wrap: break-word;
 }
