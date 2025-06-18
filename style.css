@@ -1,262 +1,861 @@
 :root {
-  --color-bg-light: #f0f0f3;
-  --color-text-light: #222;
-  --color-bg-dark: #121212;
-  --color-text-dark: #eee;
-  --color-bg-vibrant: #fffcf0;
-  --color-text-vibrant: #1b1b3a;
+  /* --- Color Palette - Dark Theme (Netflix Inspired) --- */
+  --color-bg-dark: #141414; /* Deep Dark */
+  --color-text-dark: #e5e5e5; /* Soft White */
+  --card-bg-dark: #1f1f1f; /* Slightly lighter than bg */
+  --primary-color-dark: #e50914; /* Netflix Red */
+  --accent-color-dark: #b80d0d; /* Darker Red for emphasis/alerts */
+  --secondary-color-dark: #007bff; /* A blue for secondary actions/info */
+  --border-color-dark: #333; /* Subtle borders */
+  --primary-color-dark-rgb: 229, 9, 20; /* For shadows */
 
-  --primary-color: #0078d7;
-  --accent-color: #ff5c57;
+  /* --- Color Palette - Light Theme --- */
+  --color-bg-light: #f5f5f5;
+  --color-text-light: #333;
+  --card-bg-light: #ffffff;
+  --primary-color-light: #007bff; /* Standard Blue */
+  --accent-color-light: #28a745; /* Green for positive actions/success */
+  --secondary-color-light: #6c757d; /* Grey for secondary info */
+  --border-color-light: #ddd;
+  --primary-color-light-rgb: 0, 123, 255;
 
-  --card-bg-light: #fff;
-  --card-bg-dark: #1e1e1e;
-  --card-bg-vibrant: #fff7e6;
+  /* --- Color Palette - Vibrant Theme --- */
+  --color-bg-vibrant: #fff8e1; /* Warm Peach */
+  --color-text-vibrant: #4a148c; /* Deep Purple */
+  --card-bg-vibrant: #fff3e0; /* Lighter Warm Peach */
+  --primary-color-vibrant: #ff5722; /* Deep Orange */
+  --accent-color-vibrant: #673ab7; /* Medium Purple */
+  --secondary-color-vibrant: #ffc107; /* Yellow-Orange for secondary info */
+  --border-color-vibrant: #e0e0e0;
+  --primary-color-vibrant-rgb: 255, 87, 34;
+
+  /* --- Global variables (default to dark theme values) --- */
+  --font-family-primary: 'Roboto', sans-serif; /* Clean, readable font */
+  --spacing-unit: 1rem;
+  --border-radius-card: 10px;
+  --border-radius-sm: 6px;
+  --transition-speed: 0.3s ease;
+
+  /* Dynamic variables, set by theme classes */
+  --color-bg: var(--color-bg-dark);
+  --color-text: var(--color-text-dark);
+  --card-bg: var(--card-bg-dark);
+  --primary-color: var(--primary-color-dark);
+  --accent-color: var(--accent-color-dark);
+  --secondary-color: var(--secondary-color-dark);
+  --border-color: var(--border-color-dark);
+  --primary-rgb: var(--primary-color-dark-rgb);
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-  transition: background-color 0.3s, color 0.3s;
-}
-
+/* --- Theme-specific overrides --- */
 body.light {
-  background-color: var(--color-bg-light);
-  color: var(--color-text-light);
-}
-
-body.dark {
-  background-color: var(--color-bg-dark);
-  color: var(--color-text-dark);
+  --color-bg: var(--color-bg-light);
+  --color-text: var(--color-text-light);
+  --card-bg: var(--card-bg-light);
+  --primary-color: var(--primary-color-light);
+  --accent-color: var(--accent-color-light);
+  --secondary-color: var(--secondary-color-light);
+  --border-color: var(--border-color-light);
+  --primary-rgb: var(--primary-color-light-rgb);
 }
 
 body.vibrant {
-  background-color: var(--color-bg-vibrant);
-  color: var(--color-text-vibrant);
+  --color-bg: var(--color-bg-vibrant);
+  --color-text: var(--color-text-vibrant);
+  --card-bg: var(--card-bg-vibrant);
+  --primary-color: var(--primary-color-vibrant);
+  --accent-color: var(--accent-color-vibrant);
+  --secondary-color: var(--secondary-color-vibrant);
+  --border-color: var(--border-color-vibrant);
+  --primary-rgb: var(--primary-color-vibrant-rgb);
 }
 
+/* --- Base Styles --- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-family-primary);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  -webkit-font-smoothing: antialiased; /* For smoother fonts */
+  -moz-osx-font-smoothing: grayscale; /* For smoother fonts */
+  font-size: 1.1rem; /* Base font size for good readability */
+}
+
+h1, h2, h3, h4, h5 {
+  color: var(--primary-color);
+  margin-top: 0;
+  margin-bottom: var(--spacing-unit);
+  font-weight: 700; /* Bolder headings */
+}
+
+h1 { font-size: 2.5rem; }
+h2 { 
+  font-size: 2rem; 
+  border-bottom: 2px solid var(--border-color); 
+  padding-bottom: 0.5rem; 
+  margin-bottom: 1.5rem; 
+  text-align: center;
+  color: var(--color-text); /* Override for main section titles */
+}
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--secondary-color); }
+
+/* --- Header --- */
 header {
-  padding: 1rem;
+  padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--primary-color);
-  color: white;
+  background: var(--card-bg); /* Match card background for cohesive feel */
+  color: var(--color-text);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: sticky; /* Keep header visible on scroll */
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--border-color);
 }
 
 header h1 {
   margin: 0;
   font-weight: 700;
-  font-size: 1.8rem;
+  font-size: 2.2rem;
+  color: var(--primary-color); /* Emphasize title with primary color */
 }
 
-.theme-switcher {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.theme-switcher label {
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  color: var(--color-text);
 }
 
-select, button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
+.theme-switcher select {
+  padding: 0.5rem 0.8rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--color-bg); /* Use main bg color for inputs */
+  color: var(--color-text);
+  font-size: 1rem;
   cursor: pointer;
-  background-color: rgba(255, 255, 255, 0.2);
+  appearance: none; /* Remove default dropdown arrow */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e5e5e5%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E'); /* Custom white arrow */
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 0.65em auto;
+  transition: background-color var(--transition-speed), border-color var(--transition-speed);
+}
+body.light .theme-switcher select { background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E'); } /* Black arrow for light theme */
+body.vibrant .theme-switcher select { background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a148c%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%26%23160%3B2.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E'); } /* Purple arrow for vibrant theme */
+
+header button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  background-color: var(--primary-color); /* Use primary color for main button */
   color: white;
-  transition: background-color 0.3s;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-button:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+header button:hover {
+  background-color: var(--secondary-color); /* Secondary color on hover */
+  transform: translateY(-2px);
 }
 
+header button:active {
+  transform: translateY(0);
+}
+
+/* --- Main Content Layout --- */
 main {
-  padding: 1rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.assistant-section {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-}
-
-.box {
   flex: 1;
-  min-width: 300px;
-  background-color: var(--card-bg-light);
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, box-shadow 0.3s;
+  padding: 2.5rem; /* More generous padding */
+  max-width: 1300px; /* Wider content area */
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem; /* Increased gap between sections */
 }
 
-body.dark .box {
-  background-color: var(--card-bg-dark);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+/* Responsive grid for main sections */
+@media (min-width: 768px) {
+  main {
+    grid-template-columns: 1fr 1fr; /* Two columns for larger screens */
+  }
+}
+@media (min-width: 1024px) {
+  main {
+    grid-template-columns: 2fr 1fr; /* Assistant wider, Dashboard narrower */
+  }
+  .dashboard {
+    grid-row: 1 / span 2; /* Dashboard spans full height on right */
+  }
+  .gamification {
+    grid-column: 1 / 2; /* Gamification under assistant section */
+  }
 }
 
-body.vibrant .box {
-  background-color: var(--card-bg-vibrant);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+/* --- Section & Card Base Styles --- */
+section {
+  padding: 0; /* Cards handle padding internally */
+}
+
+.box, .card {
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-card);
+  padding: 2rem; /* Generous padding inside cards/boxes */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Deep, soft shadow for immersive feel */
+  transition: background-color var(--transition-speed), box-shadow var(--transition-speed), transform 0.1s ease-out; /* Add transform for hover effects */
+}
+
+/* Hover effect for cards */
+.card:hover {
+  transform: translateY(-5px); /* Lift card slightly */
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6); /* More pronounced shadow */
+}
+body.dark .card {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6); /* Slightly more prominent for dark theme */
+  border: 1px solid var(--border-color); /* Subtle border for definition */
+}
+body.light .card {
+  border: 1px solid var(--border-color);
+}
+
+
+/* Assistant Section - Top voice input/output & manual entry forms */
+.assistant-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+@media (min-width: 768px) {
+  .assistant-section {
+    grid-template-columns: 1fr 1fr; /* Voice command and response side-by-side */
+    grid-template-areas: 
+      "voice reply"
+      "manual manual"; /* Manual entry spans both columns */
+  }
+  .voice-input { grid-area: voice; }
+  .jarvis-response { grid-area: reply; }
+  .manual-entry-forms { grid-area: manual; }
 }
 
 .box h2 {
   margin-top: 0;
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  border-bottom: 2px solid var(--accent-color);
-  padding-bottom: 0.5rem;
   margin-bottom: 1rem;
+  font-size: 1.6rem;
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
-.box p {
-  margin: 0;
-  font-size: 1.1rem;
+.voice-input, .jarvis-response {
+  min-height: 150px; /* Ensure ample height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.voice-input p, .jarvis-response p {
+  font-size: 1.15rem; /* Larger text for voice feedback */
+  font-style: italic;
+  color: var(--color-text);
+  word-break: break-word; /* Ensure long words break */
+  overflow-wrap: break-word; /* Ensure long words wrap */
 }
 
+/* Manual Entry Forms Section */
+.manual-entry-forms {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+  gap: 1.5rem;
+  padding: 2rem; /* Matches card padding */
+}
+
+.entry-section {
+  background-color: rgba(0, 0, 0, 0.1); /* Subtle transparency for inner cards */
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
+}
+body.light .entry-section { background-color: rgba(255, 255, 255, 0.8); }
+body.vibrant .entry-section { background-color: rgba(255, 255, 255, 0.8); }
+
+
+.entry-section h3 {
+  margin-bottom: 1rem;
+  color: var(--secondary-color); /* Use secondary color for form titles */
+  font-size: 1.3rem;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.input-label { /* For better accessibility/alignment */
+  font-size: 0.95rem;
+  color: var(--color-text);
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  display: block;
+}
+
+.entry-section input[type="text"],
+.entry-section input[type="date"],
+.entry-section input[type="number"],
+.entry-section select, /* Added select for form inputs */
+.entry-section textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border-radius: var(--border-radius-sm);
+  border: 1px solid var(--border-color);
+  background-color: var(--color-bg); /* Use main bg color for inputs */
+  color: var(--color-text);
+  font-size: 1rem;
+  transition: border-color var(--transition-speed), box-shadow 0.2s ease;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.entry-section input[type="checkbox"] {
+  width: auto; /* Override full width for checkbox */
+  margin-right: 0.5rem;
+}
+
+.entry-section input::placeholder,
+.entry-section textarea::placeholder {
+  color: #999;
+  opacity: 0.8;
+}
+
+.entry-section input:focus,
+.entry-section select:focus, /* Added select focus */
+.entry-section textarea:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3); /* Subtle focus glow */
+}
+
+.entry-section button {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: var(--primary-color); /* Main button color */
+}
+.entry-section button:hover {
+  background-color: var(--secondary-color);
+}
+
+/* --- Dashboard Section --- */
 .dashboard {
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .dashboard h2 {
-  color: var(--primary-color);
+  font-size: 2rem;
+  margin-bottom: 1.8rem;
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
+  color: var(--color-text); /* Dashboard H2 also primary color */
+  border-bottom: 2px solid var(--border-color); /* Match main H2 */
+  padding-bottom: 0.5rem;
 }
 
-.dashboard > div {
+.dashboard {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-.card {
-  background-color: var(--card-bg-light);
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-
-body.dark .card {
-  background-color: var(--card-bg-dark);
-  box-shadow: none;
-}
-
-body.vibrant .card {
-  background-color: var(--card-bg-vibrant);
-}
-
-.card h4 {
-  margin-top: 0;
-  margin-bottom: 0.7rem;
-  font-weight: 700;
-}
-
+/* Lists within cards (Tasks, Notes, Transactions) */
 #taskList,
-#notesList {
-  list-style-type: disc;
-  margin-left: 1.2rem;
-  max-height: 150px; /* Increased height for more tasks/notes */
+#notesList,
+#transactionsList { /* Added transactionsList here */
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  max-height: 220px; /* Ample height for lists */
   overflow-y: auto;
-  padding-right: 10px; /* To prevent scrollbar from overlapping content */
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+  margin-top: 1rem;
 }
+
+/* Custom Scrollbar Styling (Webkit browsers) */
+#taskList::-webkit-scrollbar, #notesList::-webkit-scrollbar, #transactionsList::-webkit-scrollbar { width: 8px; }
+#taskList::-webkit-scrollbar-track, #notesList::-webkit-scrollbar-track, #transactionsList::-webkit-scrollbar-track { background: var(--card-bg); border-radius: 10px; }
+#taskList::-webkit-scrollbar-thumb, #notesList::-webkit-scrollbar-thumb, #transactionsList::-webkit-scrollbar-thumb { background-color: var(--primary-color); border-radius: 10px; border: 2px solid var(--card-bg); }
 
 #taskList li,
-#notesList li {
-  margin-bottom: 8px;
+#notesList li,
+#transactionsList li { /* Added transactionsList here */
+  background-color: rgba(0, 0, 0, 0.1); /* Very subtle background for list items */
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
-  justify-content: space-between; /* To push buttons to the right */
-  word-break: break-word; /* Ensure long text wraps */
+  justify-content: space-between;
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  transition: background-color 0.2s ease, transform 0.1s ease;
 }
+body.light #taskList li, body.light #notesList li, body.light #transactionsList li { background-color: rgba(255, 255, 255, 0.8); }
+body.vibrant #taskList li, body.vibrant #notesList li, body.vibrant #transactionsList li { background-color: rgba(255, 255, 255, 0.8); }
 
-#taskList li.completed {
+
+#taskList li:hover,
+#notesList li:hover,
+#transactionsList li:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  transform: translateX(5px); /* Slight slide on hover */
+}
+body.light #taskList li:hover, body.light #notesList li:hover, body.light #transactionsList li:hover { background-color: rgba(0, 0, 0, 0.05); }
+
+#taskList li.completed-task {
   text-decoration: line-through;
   color: #888;
 }
+#taskList li.overdue-task {
+    color: var(--accent-color); /* Highlight overdue tasks */
+    font-weight: 500;
+}
 
-#taskList button,
-#notesList button {
-  font-size: 0.8rem;
-  padding: 4px 8px;
-  margin-left: 5px;
+
+.due-date, .task-priority, .task-category, .note-category, .note-tags, .transaction-category {
+  font-size: 0.9rem;
+  color: #999;
+  margin-left: 5px; /* Adjust spacing */
+  white-space: nowrap;
+}
+.item-controls {
+    display: flex;
+    gap: 5px; /* Space between buttons */
+    flex-shrink: 0; /* Prevent controls from shrinking */
+}
+
+/* Action Buttons within lists */
+.action-btn {
   background-color: var(--primary-color);
   color: white;
-  border-radius: 4px;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  width: 35px; /* Fixed width/height for small buttons */
+  height: 35px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.action-btn:hover {
+  background-color: var(--secondary-color);
+}
+.delete-btn {
+  background-color: var(--accent-color); /* Red for delete */
+}
+.delete-btn:hover {
+  background-color: #d13a3a;
+}
+.complete-btn {
+    background-color: #28a745; /* Green for complete */
+}
+.complete-btn:hover {
+    background-color: #218838;
 }
 
-#taskList button:hover,
-#notesList button:hover {
-  background-color: #0056b3;
+/* Budget Overview */
+.budget-overview canvas {
+  max-width: 100%;
+  height: auto;
+  max-height: 250px;
+  margin-top: 1rem;
+}
+#totalTransactionsDisplay {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+.transactions-list-container h5 {
+    text-align: center;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+#spendingRecommendationText {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--accent-color);
+    margin-top: 1rem;
+    text-align: center;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 1rem;
+}
+#monthlyBudgetGoalInput {
+    margin-top: 1rem;
 }
 
-
-.gamification {
-  background-color: var(--card-bg-light);
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+/* Daily Recommendation */
+.daily-recommendation p {
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--primary-color);
   text-align: center;
-  max-width: 480px;
-  margin: 0 auto 3rem auto;
+  padding: 1rem 0;
+}
+.daily-recommendation h5 {
+    text-align: center;
+    margin-top: 1rem;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 1rem;
+}
+#smartTaskSuggestionText {
+    font-size: 1rem;
+    color: var(--color-text);
+    text-align: center;
+    min-height: 50px; /* Give it some space */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
 }
 
-body.dark .gamification {
-  background-color: var(--card-bg-dark);
+/* Task/Note Search and Sort */
+.task-filter-sort, .note-search {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.task-filter-sort input, .note-search input, .task-filter-sort select {
+    flex-grow: 1;
+    padding: 0.6rem 0.8rem;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-size: 0.95rem;
 }
 
-body.vibrant .gamification {
-  background-color: var(--card-bg-vibrant);
+/* Related Notes */
+.related-notes-container {
+    margin-top: 1.5rem;
+    border-top: 1px dashed var(--border-color);
+    padding-top: 1rem;
+}
+#relatedNotesList {
+    list-style-type: none;
+    padding: 0;
+    font-size: 0.95rem;
+}
+#relatedNotesList li {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    padding: 0.5rem 0.8rem;
+    margin-bottom: 5px;
+    border-radius: var(--border-radius-sm);
+}
+
+
+/* Productivity Heatmap */
+.productivity-heatmap-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr); /* 10 columns for a visual grid */
+    gap: 4px; /* Small gap between cells */
+    width: 100%;
+    max-width: 500px; /* Constrain width */
+    margin: 1.5rem auto;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.15); /* Background for the grid itself */
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+}
+.heatmap-cell {
+    width: 30px; /* Fixed size cells */
+    height: 30px;
+    background-color: #2e2e2e; /* Base color for empty/low activity */
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+    cursor: help; /* Indicate hoverable */
+    position: relative;
+}
+/* Theme specific heatmap colors */
+body.dark .heatmap-cell { background-color: #2e2e2e; }
+body.dark .heatmap-cell[data-count="1"] { background-color: #3b3b3b; }
+body.dark .heatmap-cell[data-count="2"] { background-color: #555555; }
+body.dark .heatmap-cell[data-count="3"] { background-color: #777777; }
+body.dark .heatmap-cell[data-count="4"] { background-color: #999999; }
+body.dark .heatmap-cell[data-count="5"] { background-color: #cccccc; }
+body.dark .heatmap-cell[data-count="6"] { background-color: #eeeeee; } /* More darker */
+body.dark .heatmap-cell[data-count="7"] { background-color: #ffffff; } /* Even darker */
+
+
+body.light .heatmap-cell { background-color: #e0e0e0; }
+body.light .heatmap-cell[data-count="1"] { background-color: #c9e9ff; }
+body.light .heatmap-cell[data-count="2"] { background-color: #98d1ff; }
+body.light .heatmap-cell[data-count="3"] { background-color: #66baff; }
+body.light .heatmap-cell[data-count="4"] { background-color: #33a2ff; }
+body.light .heatmap-cell[data-count="5"] { background-color: #007bff; } /* Primary light color */
+body.light .heatmap-cell[data-count="6"] { background-color: #0060d7; } /* Darker blue */
+body.light .heatmap-cell[data-count="7"] { background-color: #0045a0; } /* Even darker blue */
+
+
+body.vibrant .heatmap-cell { background-color: #ffe0b2; }
+body.vibrant .heatmap-cell[data-count="1"] { background-color: #ffcc80; }
+body.vibrant .heatmap-cell[data-count="2"] { background-color: #ffb74d; }
+body.vibrant .heatmap-cell[data-count="3"] { background-color: #ffa726; }
+body.vibrant .heatmap-cell[data-count="4"] { background-color: #ff9800; }
+body.vibrant .heatmap-cell[data-count="5"] { background-color: #fb8c00; } /* Primary vibrant color */
+body.vibrant .heatmap-cell[data-count="6"] { background-color: #f57c00; } /* Darker orange */
+body.vibrant .heatmap-cell[data-count="7"] { background-color: #ef6c00; } /* Even darker orange */
+
+
+.heatmap-cell::after {
+    content: attr(data-date) ' - ' attr(data-count) ' tasks'; /* Show info on hover */
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-5px);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10;
+}
+.heatmap-cell:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+}
+.heatmap-info {
+    font-size: 0.9em;
+    color: #999;
+    margin-top: 1rem;
+}
+
+/* Data Management Section */
+.data-management {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  border-radius: var(--border-radius-card);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  margin-top: 2rem;
+  border: 1px solid var(--border-color);
+}
+.data-management h4 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--primary-color);
+}
+.data-management button {
+    flex-grow: 1;
+    max-width: 250px;
+    background-color: var(--secondary-color); /* Different color for data management buttons */
+}
+.data-management button:hover {
+    background-color: var(--primary-color); /* Swap on hover */
+}
+
+/* Gamification Section */
+.gamification {
+  background-color: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: var(--border-radius-card);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  max-width: 700px; /* Wider for better display */
+  margin: 2.5rem auto;
+  border: 1px solid var(--border-color);
+}
+
+.gamification h2 {
+  font-size: 2rem;
+  margin-bottom: 1.8rem;
+  color: var(--primary-color);
+}
+
+.stats-container {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem; /* Larger stat text */
+  font-weight: 500;
+}
+
+.stats-container span {
+  color: var(--accent-color);
+  font-weight: 700;
+  font-size: 1.5rem; /* Larger numbers for stats */
 }
 
 .badges {
-  margin-top: 1rem;
+  margin-top: 2rem;
   display: flex;
-  justify-content: center;
   flex-wrap: wrap;
-  gap: 10px;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 50px;
+  align-items: center;
 }
 
 .badge {
-  background-color: var(--accent-color);
+  background-color: var(--primary-color);
   color: white;
-  padding: 5px 10px;
+  padding: 0.6rem 1.2rem;
   border-radius: 20px;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-out;
+}
+.badge:hover {
+  transform: translateY(-3px) scale(1.05);
 }
 
+
+/* --- Footer --- */
 footer {
+  padding: 1.5rem;
+  background: var(--card-bg); /* Match card background */
+  color: var(--color-text);
   text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-  border-top: 1px solid #ccc;
-  color: #666;
+  margin-top: auto;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
+  border-top: 1px solid var(--border-color);
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
+footer p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 767px) {
   header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  header h1 {
+    font-size: 1.8rem;
     text-align: center;
+    width: 100%;
+  }
+  .theme-switcher {
+    width: 100%;
+    justify-content: center;
+  }
+  header button {
+    width: 100%;
   }
 
+  main {
+    padding: 1.5rem;
+    gap: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+
+  .box, .card, .entry-section {
+    padding: 1.2rem;
+    border-radius: var(--border-radius-sm);
+  }
+  
   .assistant-section {
+      gap: 1.5rem;
+  }
+  .manual-entry-forms {
+      grid-template-columns: 1fr; /* Stack forms on small screens */
+      padding: 1.2rem;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr; /* Stack cards on smaller screens */
+  }
+
+  .gamification {
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .stats-container {
     flex-direction: column;
+    gap: 1rem;
   }
 
-  .box {
-    min-width: unset;
+  .heatmap-grid {
+      grid-template-columns: repeat(7, 1fr); /* More compact for mobile */
+      width: auto;
+  }
+  .heatmap-cell {
+      width: 25px;
+      height: 25px;
+  }
+  .heatmap-cell::after { /* Adjust tooltip position for smaller screens */
+      transform: translateX(-50%) translateY(-2px);
+      font-size: 0.7rem;
+  }
+  .heatmap-cell:hover::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-8px);
   }
 
-  .dashboard > div {
-    grid-template-columns: 1fr;
+  .data-management button {
+      width: 100%;
+  }
+
+  #taskList li, #notesList li, #transactionsList li {
+      flex-direction: column; /* Stack content and buttons on smaller screens */
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.8rem;
+  }
+  .action-btn {
+      margin-left: 0;
+      margin-top: 0.5rem;
+  }
+  .task-filter-sort, .note-search {
+      flex-direction: column;
+      gap: 0.8rem;
+  }
+  .task-filter-sort input, .task-filter-sort select, .note-search input {
+      width: 100%;
   }
 }

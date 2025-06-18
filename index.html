@@ -4,19 +4,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jarvis Voice Assistant</title>
+  <title>Jarvis Personal AI Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts for Roboto (used as a clean, readable font) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js library for budget visualization -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
   <header>
-    <h1>Jarvis Voice Assistant</h1>
+    <h1>Jarvis Personal AI Assistant</h1>
     <div class="theme-switcher">
       <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
-        <option value="light">Light</option>
         <option value="dark">Dark</option>
+        <option value="light">Light</option>
         <option value="vibrant">Vibrant</option>
       </select>
     </div>
@@ -25,50 +30,161 @@
 
   <main>
     <section class="assistant-section">
-      <div class="box">
+      <div class="box voice-input">
         <h2>Your Speech</h2>
-        <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
+        <p id="userSpeech">Say "Hey Jarvis" to begin...</p>
       </div>
-      <div class="box">
-        <h2>Jarvis Reply</h2>
-        <p id="jarvisReply"></p>
+      <div class="box jarvis-response">
+        <h2>Jarvis's Response</h2>
+        <p id="jarvisReply">Hello! I'm Jarvis, your personal AI assistant. Say 'Activate Jarvis' to begin.</p>
+      </div>
+
+      <div class="box manual-entry-forms">
+        <h2>Manual Quick Entry</h2>
+        <div class="entry-section">
+          <h3>New Task</h3>
+          <input type="text" id="newTaskInput" placeholder="e.g., Buy groceries">
+          <label for="newTaskDueDate" class="input-label">Due Date:</label>
+          <input type="date" id="newTaskDueDate">
+          <label for="newTaskPriority" class="input-label">Priority:</label>
+          <select id="newTaskPriority">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+          </select>
+          <label for="newTaskCategory" class="input-label">Category:</label>
+          <input type="text" id="newTaskCategory" placeholder="e.g., Personal, Work">
+          <label for="newTaskRecurring" class="input-label">Recurring?</label>
+          <input type="checkbox" id="newTaskRecurring">
+          <select id="newTaskRecurrencePattern" style="display:none;">
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+          <button id="addTaskBtn">Add Task</button>
+          <button id="addTaskTemplateBtn">Add from Template</button>
+        </div>
+
+        <div class="entry-section">
+          <h3>New Note</h3>
+          <textarea id="newNoteInput" placeholder="e.g., Ideas for Q3 project" rows="3"></textarea>
+          <label for="newNoteCategory" class="input-label">Category:</label>
+          <input type="text" id="newNoteCategory" placeholder="e.g., Meeting, Idea">
+          <label for="newNoteTags" class="input-label">Tags (comma-separated):</label>
+          <input type="text" id="newNoteTags" placeholder="e.g., #urgent, #review">
+          <button id="addNoteBtn">Add Note</button>
+          <button id="addNoteTemplateBtn">Add from Template</button>
+        </div>
+
+        <div class="entry-section">
+          <h3>Record Transaction</h3>
+          <input type="number" id="newTransactionAmountInput" placeholder="Amount (e.g., 25.50)" step="0.01">
+          <input type="text" id="newTransactionDescInput" placeholder="Description (e.g., Coffee, Salary)">
+          <label for="newTransactionType" class="input-label">Type:</label>
+          <select id="newTransactionType">
+            <option value="expense">Expense</option>
+            <option value="received">Income</option>
+          </select>
+          <label for="newTransactionCategory" class="input-label">Category:</label>
+          <input type="text" id="newTransactionCategory" placeholder="e.g., Food, Transport, Salary">
+          <button id="addTransactionBtn">Add Transaction</button>
+        </div>
+
+        <div class="entry-section">
+          <h3>Set Monthly Budget Goal</h3>
+          <input type="number" id="monthlyBudgetGoalInput" placeholder="e.g., 1500" step="1">
+          <button id="setBudgetGoalBtn">Set Goal</button>
+        </div>
       </div>
     </section>
 
     <section class="dashboard">
       <h2>Dashboard Overview</h2>
+
       <div class="card upcoming-tasks">
-        <h4>Upcoming Tasks</h4>
+        <h4>Your Tasks</h4>
+        <div class="task-filter-sort">
+          <input type="text" id="taskSearchInput" placeholder="Search tasks...">
+          <select id="taskSortSelect">
+            <option value="dueDate">Sort by Due Date</option>
+            <option value="priority">Sort by Priority</option>
+            <option value="category">Sort by Category</option>
+            <option value="completed">Sort by Status</option>
+          </select>
+        </div>
         <ul id="taskList">
-          </ul>
+          <!-- Tasks will be rendered here by JavaScript -->
+        </ul>
+        <p class="task-stats" id="taskCompletionStats">Total Completed: 0</p>
       </div>
-      <div class="card budget-overview">
-        <h4>Budget Overview</h4>
-        <p id="budgetOverview">Loading budget data...</p>
-        <canvas id="budgetChart" width="300" height="150"></canvas>
-      </div>
+
       <div class="card recent-notes">
-        <h4>Recent Notes</h4>
+        <h4>Your Notes</h4>
+        <input type="text" id="noteSearchInput" placeholder="Search notes...">
         <ul id="notesList">
-          </ul>
+          <!-- Notes will be rendered here by JavaScript -->
+        </ul>
+        <div class="related-notes-container">
+          <h5>Related Notes:</h5>
+          <ul id="relatedNotesList"></ul>
+        </div>
       </div>
+
+      <div class="card budget-overview">
+        <h4>Budget & Expenses</h4>
+        <p id="budgetOverview">This month's spending breakdown.</p>
+        <canvas id="budgetChart" width="300" height="150"></canvas>
+        <p id="spendingRecommendationText">No spending recommendations yet.</p>
+        <p id="totalTransactionsDisplay">Total: $0.00</p>
+        <div class="transactions-list-container">
+            <h5>Recent Transactions</h5>
+            <ul id="transactionsList">
+                <!-- Transactions will be rendered here by JavaScript -->
+            </ul>
+        </div>
+      </div>
+
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
-        <p>Start with tasks closest to deadline</p>
+        <p id="dailyRecommendationText">Loading daily tip...</p>
+        <h5>Smart Task Suggestion:</h5>
+        <p id="smartTaskSuggestionText">No smart task suggestions yet.</p>
+      </div>
+      
+      <!-- New Card: Productivity Heatmap -->
+      <div class="card productivity-heatmap-card">
+        <h4>Productivity Heatmap (Last 60 Days)</h4>
+        <div id="productivityHeatmap" class="heatmap-grid">
+            <!-- Heatmap cells will be generated here -->
+        </div>
+        <p class="heatmap-info">More tasks = darker square</p>
+      </div>
+
+      <!-- New Card: Data Management & Share -->
+      <div class="card data-management">
+        <h4>Data Management & Share</h4>
+        <button id="exportAllDataBtn">Export All Data (JSON)</button>
+        <input type="file" id="importAllDataFile" accept=".json" style="display: none;">
+        <button id="importAllDataBtn">Import All Data (JSON)</button>
+        <button id="shareSummaryBtn">Share My Summary</button>
+        <button id="clearAllDataBtn">Clear All Data</button>
       </div>
     </section>
 
     <section class="gamification">
       <h2>Achievements & Productivity</h2>
-      <p>Streak: <span id="streakCount">0</span> days</p>
-      <p>Points: <span id="pointsCount">0</span></p>
+      <div class="stats-container">
+        <p>Streak: <span id="streakCount">0</span> days</p>
+        <p>Points: <span id="pointsCount">0</span></p>
+      </div>
       <div id="badges" class="badges">
-        </div>
+        <!-- badges will be shown here -->
+      </div>
     </section>
   </main>
 
   <footer>
-    <p>&copy; 2025 Jarvis Voice Assistant. All rights reserved.</p>
+    <p>&copy; 2025 Jarvis Personal AI Assistant. All rights reserved.</p>
   </footer>
 
   <script src="app.js"></script>
