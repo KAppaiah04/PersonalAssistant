@@ -4,24 +4,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jarvis Personal AI Assistant</title>
+  <title>Jarvis Voice Assistant</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Google Fonts for Roboto (used as a clean, readable font) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-  <!-- Chart.js library for budget visualization -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
   <header>
-    <h1>Jarvis Personal AI Assistant</h1>
+    <h1>Jarvis Voice Assistant</h1>
     <div class="theme-switcher">
       <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
-        <option value="dark">Dark</option>
         <option value="light">Light</option>
+        <option value="dark">Dark</option>
         <option value="vibrant">Vibrant</option>
       </select>
     </div>
@@ -30,109 +25,50 @@
 
   <main>
     <section class="assistant-section">
-      <div class="box voice-input">
+      <div class="box">
         <h2>Your Speech</h2>
-        <p id="userSpeech">Say "Hey Jarvis" to begin...</p>
+        <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
       </div>
-      <div class="box jarvis-response">
-        <h2>Jarvis's Response</h2>
-        <p id="jarvisReply">Hello! I'm Jarvis, your personal AI assistant. Say 'Activate Jarvis' to begin.</p>
-      </div>
-
-      <div class="box manual-entry-forms">
-        <h2>Manual Quick Entry</h2>
-        <div class="entry-section">
-          <h3>New Task</h3>
-          <input type="text" id="newTaskInput" placeholder="e.g., Buy groceries by 5 PM">
-          <label for="newTaskDueDate" class="input-label">Due Date:</label>
-          <input type="date" id="newTaskDueDate">
-          <button id="addTaskBtn">Add Task</button>
-        </div>
-
-        <div class="entry-section">
-          <h3>New Note</h3>
-          <textarea id="newNoteInput" placeholder="e.g., Ideas for Q3 project" rows="3"></textarea>
-          <button id="addNoteBtn">Add Note</button>
-        </div>
-
-        <div class="entry-section">
-          <h3>Record Expense</h3>
-          <input type="number" id="newExpenseAmountInput" placeholder="Amount (e.g., 25.50)" step="0.01">
-          <input type="text" id="newExpenseDescInput" placeholder="Description (e.g., Coffee, Groceries)">
-          <button id="addExpenseBtn">Add Expense</button>
-        </div>
+      <div class="box">
+        <h2>Jarvis Reply</h2>
+        <p id="jarvisReply"></p>
       </div>
     </section>
 
     <section class="dashboard">
       <h2>Dashboard Overview</h2>
-
       <div class="card upcoming-tasks">
-        <h4>Your Tasks</h4>
+        <h4>Upcoming Tasks</h4>
         <ul id="taskList">
-          <!-- Tasks will be rendered here by JavaScript -->
-        </ul>
+          </ul>
       </div>
-
-      <div class="card recent-notes">
-        <h4>Your Notes</h4>
-        <ul id="notesList">
-          <!-- Notes will be rendered here by JavaScript -->
-        </ul>
-      </div>
-
       <div class="card budget-overview">
-        <h4>Budget & Expenses</h4>
-        <p id="budgetOverview">This month's spending breakdown.</p>
+        <h4>Budget Overview</h4>
+        <p id="budgetOverview">Loading budget data...</p>
         <canvas id="budgetChart" width="300" height="150"></canvas>
-        <p id="totalExpensesDisplay">Total Expenses: $0.00</p>
-        <div class="expenses-list-container">
-            <h4>Recent Expenses</h4>
-            <ul id="expensesList">
-                <!-- Expenses will be rendered here by JavaScript -->
-            </ul>
-        </div>
       </div>
-
+      <div class="card recent-notes">
+        <h4>Recent Notes</h4>
+        <ul id="notesList">
+          </ul>
+      </div>
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
-        <p id="dailyRecommendationText">Loading daily tip...</p>
-      </div>
-      
-      <!-- New Card: Productivity Heatmap -->
-      <div class="card productivity-heatmap-card">
-        <h4>Productivity Heatmap (Last 60 Days)</h4>
-        <div id="productivityHeatmap" class="heatmap-grid">
-            <!-- Heatmap cells will be generated here -->
-        </div>
-        <p class="heatmap-info">More tasks = darker square</p>
-      </div>
-
-      <!-- New Card: Data Management & Share -->
-      <div class="card data-management">
-        <h4>Data Management & Share</h4>
-        <button id="exportAllDataBtn">Export All Data (JSON)</button>
-        <input type="file" id="importAllDataFile" accept=".json" style="display: none;">
-        <button id="importAllDataBtn">Import All Data (JSON)</button>
-        <button id="shareSummaryBtn">Share My Summary</button>
-        <button id="clearAllDataBtn">Clear All Data</button>
+        <p>Start with tasks closest to deadline</p>
       </div>
     </section>
 
     <section class="gamification">
       <h2>Achievements & Productivity</h2>
-      <div class="stats-container">
-        <p>Streak: <span id="streakCount">0</span> days</p>
-        <p>Points: <span id="pointsCount">0</span></p>
-      </div>
+      <p>Streak: <span id="streakCount">0</span> days</p>
+      <p>Points: <span id="pointsCount">0</span></p>
       <div id="badges" class="badges">
-        <!-- badges will be shown here -->
-      </div>
+        </div>
     </section>
   </main>
 
   <footer>
-    <p>&copy; 2025 Jarvis Personal AI Assistant. All rights reserved.</p>
+    <p>&copy; 2025 Jarvis Voice Assistant. All rights reserved.</p>
   </footer>
 
   <script src="app.js"></script>
