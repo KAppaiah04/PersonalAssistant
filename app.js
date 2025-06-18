@@ -1,14 +1,15 @@
 // ==========================
-// Jarvis Voice Assistant App
+// Jarvis Personal AI Assistant App
 // ==========================
 
+// --- DOM Elements ---
 const startBtn = document.getElementById("startBtn");
-const userSpeechEl = document.getElementById("userSpeech"); // Renamed to avoid conflict
-const jarvisReplyEl = document.getElementById("jarvisReply"); // Renamed to avoid conflict
+const userSpeechEl = document.getElementById("userSpeech");
+const jarvisReplyEl = document.getElementById("jarvisReply");
 const taskList = document.getElementById("taskList");
 const notesList = document.getElementById("notesList");
-const budgetOverview = document.getElementById("budgetOverview"); // This might be repurposed or removed
-const budgetChart = document.getElementById("budgetChart").getContext("2d");
+const budgetChartCanvas = document.getElementById("budgetChart"); // Renamed for clarity
+const budgetChartCtx = budgetChartCanvas.getContext("2d");
 const streakCountEl = document.getElementById("streakCount");
 const pointsCountEl = document.getElementById("pointsCount");
 const badgesEl = document.getElementById("badges");
@@ -29,7 +30,7 @@ const addTransactionBtn = document.getElementById("addTransactionBtn");
 const budgetGoalAmountEl = document.getElementById("budgetGoalAmount");
 const setBudgetGoalBtn = document.getElementById("setBudgetGoalBtn");
 const currentBudgetGoalEl = document.getElementById("currentBudgetGoal");
-const budgetSummaryEl = document.getElementById("budgetSummary"); // New element for summary text
+const budgetSummaryEl = document.getElementById("budgetSummary");
 
 // Data Management Elements
 const exportDataBtn = document.getElementById("exportDataBtn");
@@ -40,15 +41,20 @@ const dailyRecommendationTextEl = document.getElementById("dailyRecommendationTe
 
 let recognition;
 let listening = false;
-let currentTheme = 'light';
+let currentTheme = 'dark'; // Default to dark for Netflix-like UI
 
-// --- Data Models (loaded from localStorage) ---
+// --- Data Models (will be loaded from localStorage) ---
 let tasks = [];
 let notes = [];
-let transactions = [];
+let transactions = []; // Can include both income and expense
 let budgetGoal = null;
 
 // --- Gamification state saved in localStorage ---
+let streak = 0;
+let lastCompletionDate = null;
+let points = 0;
+let badges = [];
+
 const STORAGE_KEYS = {
   STREAK: "jarvis_streak",
   LAST_COMPLETION_DATE: "jarvis_last_date",
@@ -70,15 +76,15 @@ function loadAllData() {
   tasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS)) || [];
   notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTES)) || [];
   transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS)) || [];
-  budgetGoal = JSON.parse(localStorage.getItem(STORAGE_KEYS.BUDGET_GOAL));
+  budgetGoal = JSON.parse(localStorage.getItem(STORAGE_KEYS.BUDGET_GOAL)); // budgetGoal can be null
 
   updateGamificationUI();
   renderTasks();
   renderNotes();
-  renderBudgetChart();
+  renderBudgetChart(); // This needs currentTheme to be set.
   updateBudgetSummary();
   updateBudgetGoalUI();
-  loadTheme(); // Load theme after body is available
+  loadTheme(); // Load theme after body is available, ensures chart renders with correct colors
   generateDailyRecommendation(); // Generate after all data is loaded
 }
 
@@ -94,14 +100,14 @@ function saveAllData() {
   localStorage.setItem(STORAGE_KEYS.BUDGET_GOAL, JSON.stringify(budgetGoal));
 }
 
-// Update streak UI
+// --- Gamification Functions ---
 function updateGamificationUI() {
   streakCountEl.textContent = streak;
   pointsCountEl.textContent = points;
 
   badgesEl.innerHTML = '';
   if (badges.length === 0) {
-    badgesEl.textContent = "No badges earned yet!";
+    badgesEl.textContent = "No badges earned yet. Keep completing tasks!";
   } else {
     badges.forEach(badge => {
       const badgeEl = document.createElement("span");
@@ -112,27 +118,27 @@ function updateGamificationUI() {
   }
 }
 
-// Check if today is next day after last completion to increment streak
 function checkAndUpdateStreak() {
-  const today = new Date().toDateString();
+  const today = new Date().toDateString(); // e.g., "Wed Jun 18 2025"
 
   if (!lastCompletionDate) {
-    // First completion ever or streak reset
-    streak = 1;
+    streak = 1; // First completion ever
   } else {
     const lastDate = new Date(lastCompletionDate);
     const diffDays = Math.floor((new Date(today) - lastDate) / (1000 * 60 * 60 * 24));
+
     if (diffDays === 1) {
-      streak++;
+      streak++; // Consecutive day
     } else if (diffDays > 1) {
-      streak = 1; // streak broken, reset
+      streak = 1; // Streak broken, reset
+    } else {
+      // Same day, don't increment streak, just update lastCompletionDate if multiple tasks completed
     }
   }
   lastCompletionDate = today;
   saveAllData();
 }
 
-// Add points & check badges
 function addPoints(value) {
   points += value;
   saveAllData();
@@ -140,85 +146,102 @@ function addPoints(value) {
   updateGamificationUI();
 }
 
-// Check badges earned
 function checkBadges() {
-  // Badge conditions
-  if (points >= 50 && !badges.includes("Productivity Pro")) {
-    badges.push("Productivity Pro");
-  }
-  if (streak >= 5 && !badges.includes("5-Day Streak")) {
-    badges.push("5-Day Streak");
-  }
-  if (streak >= 10 && !badges.includes("10-Day Streak")) {
-    badges.push("10-Day Streak");
-  }
-  // Check "All Tasks Done" badge only if there are tasks and all are completed
-  if (tasks.length > 0 && tasks.every(t => t.completed) && !badges.includes("All Tasks Done")) {
-    badges.push("All Tasks Done");
-  }
+  // Define badges and their conditions
+  const allBadges = [
+    { name: "Productivity Pro", condition: () => points >= 50 },
+    { name: "5-Day Streak", condition: () => streak >= 5 },
+    { name: "10-Day Streak", condition: () => streak >= 10 },
+    { name: "Task Master", condition: () => tasks.filter(t => t.completed).length >= 10 },
+    { name: "Budget Buddy", condition: () => transactions.length >= 5 && budgetGoal !== null }
+    // Add more badge conditions here
+  ];
+
+  allBadges.forEach(b => {
+    if (b.condition() && !badges.includes(b.name)) {
+      badges.push(b.name);
+      speakJarvisReply(`Congratulations! You earned the "${b.name}" badge!`); // Speak badge achievement
+    }
+  });
   saveAllData();
 }
 
-// Task Management
+// --- Task Management Functions ---
 function addTask(text, dueDate, category) {
-  if (!text) return;
+  if (!text) {
+    speakJarvisReply("Please provide a task description.");
+    return;
+  }
   const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
   tasks.push({ id: newId, text, completed: false, dueDate, category });
   saveAllData();
   renderTasks();
-  jarvisReplyEl.textContent = `Task "${text}" added.`;
+  speakJarvisReply(`Task "${text}" added.`);
 }
 
-// Mark task completed (simulate)
 function completeTask(id) {
   const task = tasks.find(t => t.id === id);
   if (task && !task.completed) {
     task.completed = true;
-    addPoints(10);
-    checkAndUpdateStreak();
+    addPoints(10); // Award points for completion
+    checkAndUpdateStreak(); // Update streak logic
     saveAllData();
     renderTasks();
     updateGamificationUI();
-    jarvisReplyEl.textContent = `Marked "${task.text}" as completed. Good job!`;
+    speakJarvisReply(`Marked "${task.text}" as completed. Good job!`);
   } else if (task && task.completed) {
-    jarvisReplyEl.textContent = `"${task.text}" is already completed.`;
+    speakJarvisReply(`"${task.text}" is already completed.`);
   } else {
-    jarvisReplyEl.textContent = `Task not found.`;
+    speakJarvisReply(`Task not found.`);
   }
 }
 
-// Render tasks in UI
 function renderTasks() {
   taskList.innerHTML = "";
   if (tasks.length === 0) {
-    taskList.textContent = "No tasks yet. Add one above!";
+    taskList.textContent = "No tasks yet. Add one using the form above or voice command!";
     return;
   }
+  // Sort: incomplete first, then by earliest due date
   tasks.sort((a, b) => {
-    // Sort by completion status (incomplete first)
     if (a.completed !== b.completed) {
-      return a.completed ? 1 : -1;
+      return a.completed ? 1 : -1; // Incomplete tasks come first
     }
-    // Then by due date (earliest first)
+    // Handle cases where dueDate might be empty or null
     if (a.dueDate && b.dueDate) {
       return new Date(a.dueDate) - new Date(b.dueDate);
     }
-    return 0;
+    if (a.dueDate) return -1; // Tasks with due date before those without
+    if (b.dueDate) return 1;
+    return 0; // Maintain original order if no due dates
   });
 
   tasks.forEach(task => {
     const li = document.createElement("li");
     let taskInfo = task.text;
     if (task.dueDate) {
-      const today = new Date().toDateString();
+      const today = new Date();
+      today.setHours(0,0,0,0); // Normalize today to start of day
       const dueDate = new Date(task.dueDate);
-      const isOverdue = !task.completed && dueDate < new Date(today);
-      taskInfo += ` (Due: ${task.dueDate}${isOverdue ? ' - OVERDUE!' : ''})`;
+      dueDate.setHours(0,0,0,0); // Normalize due date to start of day
+
+      const isOverdue = !task.completed && dueDate < today;
+      const isToday = !task.completed && dueDate.toDateString() === today.toDateString();
+
+      taskInfo += ` (Due: ${task.dueDate}`;
+      if (isOverdue) {
+        taskInfo += ' - OVERDUE!';
+        li.classList.add("overdue-task"); // Add class for specific styling
+      } else if (isToday) {
+        taskInfo += ' - TODAY!';
+      }
+      taskInfo += ')';
     }
     if (task.category) {
       taskInfo += ` [${task.category}]`;
     }
     li.textContent = taskInfo;
+
     if (task.completed) {
       li.classList.add("completed-task");
     } else {
@@ -230,16 +253,18 @@ function renderTasks() {
   });
 }
 
-// Note Taking
+// --- Note Taking Functions ---
 function addNote(text, category) {
-  if (!text) return;
+  if (!text) {
+    speakJarvisReply("Please provide a note.");
+    return;
+  }
   notes.push({ text, category, timestamp: new Date().toISOString() });
   saveAllData();
   renderNotes();
-  jarvisReplyEl.textContent = `Note "${text}" added.`;
+  speakJarvisReply(`Note "${text}" added.`);
 }
 
-// Render notes in UI
 function renderNotes() {
   notesList.innerHTML = "";
   if (notes.length === 0) {
@@ -254,24 +279,32 @@ function renderNotes() {
   });
 }
 
-// Budget Tracking
+// --- Budget Tracking Functions ---
 function addTransaction(amount, description, type) {
-  if (!amount || isNaN(amount)) return;
+  if (!amount || isNaN(amount) || amount <= 0) {
+    speakJarvisReply("Please enter a valid amount for the transaction.");
+    return;
+  }
   transactions.push({ amount: parseFloat(amount), description, type, timestamp: new Date().toISOString() });
   saveAllData();
   renderBudgetChart();
   updateBudgetSummary();
-  jarvisReplyEl.textContent = `${type === 'expense' ? 'Expense' : 'Income'} of $${amount} recorded.`;
+  checkBadges(); // Check budget related badges
+  speakJarvisReply(`${type === 'expense' ? 'Expense' : 'Income'} of $${amount} recorded.`);
 }
 
 function setBudgetGoal(amount) {
-  if (!amount || isNaN(amount)) return;
+  if (!amount || isNaN(amount) || amount <= 0) {
+    speakJarvisReply("Please enter a valid budget goal amount.");
+    return;
+  }
   budgetGoal = parseFloat(amount);
   saveAllData();
   updateBudgetGoalUI();
   renderBudgetChart();
   updateBudgetSummary();
-  jarvisReplyEl.textContent = `Monthly budget goal set to $${amount}.`;
+  checkBadges(); // Check budget related badges
+  speakJarvisReply(`Monthly budget goal set to $${amount}.`);
 }
 
 function updateBudgetGoalUI() {
@@ -298,21 +331,31 @@ function updateBudgetSummary() {
   if (budgetGoal !== null) {
     const remainingBudget = budgetGoal - monthlyExpenses;
     const percentageUsed = budgetGoal > 0 ? (monthlyExpenses / budgetGoal * 100).toFixed(1) : 0;
-    summaryText = `This month: Spent $${monthlyExpenses.toFixed(2)} of $${budgetGoal.toFixed(2)} (${percentageUsed}% used). Remaining: $${remainingBudget.toFixed(2)}.`;
+    summaryText = `This month: Spent $${monthlyExpenses.toFixed(2)} (Income: $${monthlyIncome.toFixed(2)}). Of your $${budgetGoal.toFixed(2)} goal, ${percentageUsed}% used. Remaining: $${remainingBudget.toFixed(2)}.`;
     if (monthlyExpenses > budgetGoal) {
-      summaryText += " You are over budget!";
+      summaryText += " You are **over budget!**";
+    } else if (remainingBudget < budgetGoal * 0.25) { // Less than 25% remaining
+        summaryText += " You're running low on budget!";
     }
   } else {
     summaryText = `This month: Spent $${monthlyExpenses.toFixed(2)}. Income: $${monthlyIncome.toFixed(2)}.`;
   }
-  budgetSummaryEl.textContent = summaryText;
+  budgetSummaryEl.innerHTML = summaryText; // Use innerHTML to allow bold
 }
-
 
 // Budget chart (simple bar chart with Canvas API)
 function renderBudgetChart() {
-  const ctx = budgetChart;
-  ctx.clearRect(0, 0, 300, 150); // Clear previous chart
+  const ctx = budgetChartCtx;
+  const canvasWidth = budgetChartCanvas.width;
+  const canvasHeight = budgetChartCanvas.height;
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear previous chart
+
+  // Determine colors based on current theme
+  const rootStyles = getComputedStyle(document.documentElement);
+  const barColor = rootStyles.getPropertyValue('--primary-color');
+  const textColor = rootStyles.getPropertyValue('--color-text');
+  const borderColor = rootStyles.getPropertyValue('--border-color');
+
 
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -335,103 +378,125 @@ function renderBudgetChart() {
   }
 
   const maxSpending = Math.max(...monthlySpending, budgetGoal || 0);
-  const chartHeight = 130;
-  const barWidth = 30;
-  const gap = 20; // Increased gap for better spacing
-  const startX = 25; // Adjusted start X to center bars
+  // Add a buffer to maxSpending if it's too low or zero to prevent division by zero or tiny bars
+  const displayMax = maxSpending > 0 ? maxSpending * 1.1 : 100; // 10% buffer or default to 100
 
-  ctx.fillStyle = currentTheme === "dark" ? "#69c" : "#0078d7"; // Bar color
+  const chartAreaHeight = canvasHeight - 30; // Leave space for labels
+  const barWidth = 30;
+  const gap = (canvasWidth - (barWidth * 6)) / 7; // Calculate dynamic gap
+  const startX = gap; // Start X for first bar
+
+  ctx.fillStyle = barColor; // Bar color
+  ctx.font = "10px Arial";
+  ctx.textAlign = "center";
 
   // Render bars
   monthlySpending.forEach((value, i) => {
-    const barHeight = maxSpending > 0 ? (value / maxSpending) * chartHeight : 0;
-    ctx.fillRect(startX + i * (barWidth + gap), 140 - barHeight, barWidth, barHeight);
+    const barHeight = (value / displayMax) * chartAreaHeight;
+    ctx.fillRect(startX + i * (barWidth + gap), canvasHeight - 20 - barHeight, barWidth, barHeight); // Adjust Y for base line
 
     // Draw month label
-    ctx.fillStyle = currentTheme === "dark" ? "#eee" : "#222"; // Text color
-    ctx.textAlign = "center";
-    ctx.font = "10px Arial";
-    ctx.fillText(monthLabels[i], startX + i * (barWidth + gap) + barWidth / 2, 140 + 15);
+    ctx.fillStyle = textColor; // Text color
+    ctx.fillText(monthLabels[i], startX + i * (barWidth + gap) + barWidth / 2, canvasHeight - 5); // Position below bars
   });
 
   // Draw budget goal line if set
-  if (budgetGoal !== null && maxSpending > 0) {
-    ctx.strokeStyle = "red";
+  if (budgetGoal !== null && displayMax > 0) {
+    ctx.strokeStyle = rootStyles.getPropertyValue('--primary-color'); // Use primary color for goal line
     ctx.lineWidth = 2;
-    const goalY = 140 - (budgetGoal / maxSpending) * chartHeight;
+    const goalY = canvasHeight - 20 - (budgetGoal / displayMax) * chartAreaHeight; // Adjust Y for base line
     ctx.beginPath();
-    ctx.moveTo(15, goalY);
-    ctx.lineTo(300, goalY);
+    ctx.moveTo(0, goalY);
+    ctx.lineTo(canvasWidth, goalY);
     ctx.stroke();
-    ctx.fillStyle = "red";
-    ctx.fillText(`Goal: $${budgetGoal.toFixed(0)}`, 30, goalY - 5);
+    ctx.fillStyle = rootStyles.getPropertyValue('--primary-color');
+    ctx.textAlign = "left";
+    ctx.fillText(`Goal: $${budgetGoal.toFixed(0)}`, 5, goalY - 5);
   }
 
-  // Axis line
-  ctx.strokeStyle = currentTheme === "dark" ? "#aaa" : "#333";
+  // X-axis line (base of bars)
+  ctx.strokeStyle = borderColor;
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(15, 140);
-  ctx.lineTo(300, 140);
+  ctx.moveTo(0, canvasHeight - 20);
+  ctx.lineTo(canvasWidth, canvasHeight - 20);
   ctx.stroke();
 }
 
 
 // ========================
-// Voice recognition & Jarvis
+// Voice recognition & Jarvis Core
 // ========================
+
+// Function to make Jarvis speak
+function speakJarvisReply(text) {
+  jarvisReplyEl.textContent = text; // Always show text in the UI
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    // You can customize voice, pitch, rate here if desired
+    // Example: utterance.voice = speechSynthesis.getVoices().find(voice => voice.name === 'Google UK English Male');
+    // utterance.rate = 1.0;
+    // utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  } else {
+    console.warn("Speech Synthesis API not supported in this browser.");
+  }
+}
+
 
 function initSpeechRecognition() {
   if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
-    alert("Sorry, your browser does not support Speech Recognition.");
+    speakJarvisReply("Sorry, your browser does not support Speech Recognition. Try Chrome or Edge.");
     return null;
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = new SpeechRecognition();
+  const recognitionInstance = new SpeechRecognition();
 
-  recognition.continuous = true;
-  recognition.interimResults = false;
-  recognition.lang = "en-US";
+  recognitionInstance.continuous = true; // Keep listening
+  recognitionInstance.interimResults = false; // Only final results
+  recognitionInstance.lang = "en-US";
 
-  recognition.onstart = () => {
+  recognitionInstance.onstart = () => {
     listening = true;
     startBtn.textContent = "Listening...";
     startBtn.disabled = true;
+    speakJarvisReply("Jarvis is active. Say 'Hey Jarvis' followed by a command.");
   };
 
-  recognition.onend = () => {
+  recognitionInstance.onend = () => {
     listening = false;
+    startBtn.textContent = "Activate Jarvis";
+    startBtn.disabled = false;
+    // Don't clear reply, keep the last Jarvis response
+  };
+
+  recognitionInstance.onerror = (event) => {
+    console.error("Speech recognition error", event.error);
+    speakJarvisReply(`Speech recognition error: ${event.error}. Please try again.`);
+    listening = false; // Reset listening state on error
     startBtn.textContent = "Activate Jarvis";
     startBtn.disabled = false;
   };
 
-  recognition.onerror = (event) => {
-    console.error("Speech recognition error", event.error);
-    jarvisReplyEl.textContent = "Speech recognition error. Please try again.";
-  };
-
-  recognition.onresult = (event) => {
+  recognitionInstance.onresult = (event) => {
     const transcript = event.results[event.results.length - 1][0].transcript.trim();
-    userSpeechEl.textContent = transcript;
+    userSpeechEl.textContent = `You said: "${transcript}"`;
 
-    // Only listen (no reply) if the command starts with "Jarvis" or "Hey Jarvis"
     if (/^(jarvis|hey jarvis)/i.test(transcript)) {
-      // Extract command after "Jarvis" keyword
       const command = transcript.replace(/^(jarvis|hey jarvis)/i, "").trim();
       if (command) {
         handleCommand(command.toLowerCase());
       } else {
-        // If no command after "jarvis", don't reply, just listen
-        jarvisReplyEl.textContent = "Yes, how can I help?";
+        speakJarvisReply("Yes, how can I help?");
       }
     } else {
-      // Manual mode or other speech, don't reply
-      jarvisReplyEl.textContent = "";
+      // If no "Jarvis" keyword, it's just general speech, don't reply as Jarvis
+      jarvisReplyEl.textContent = "Listening..."; // Clear previous Jarvis response if any
     }
   };
 
-  return recognition;
+  return recognitionInstance;
 }
 
 function handleCommand(command) {
@@ -446,40 +511,38 @@ function handleCommand(command) {
   } else if (command.includes("tasks")) {
     const incomplete = tasks.filter(t => !t.completed);
     response = incomplete.length ? `You have ${incomplete.length} tasks pending: ${incomplete.map(t => t.text).join(", ")}` : "You have no pending tasks!";
-  } else if (command.includes("complete task")) {
-    // Example: "complete task submit budget report"
-    const match = command.match(/complete task (.+)/);
-    if (match && match[1]) {
-      const taskName = match[1].trim();
-      const task = tasks.find(t => t.text.toLowerCase() === taskName.toLowerCase());
-      if (task) { // The completeTask function handles completion status
-        completeTask(task.id);
-      } else {
-        response = `Task "${taskName}" not found.`;
-      }
-    } else {
-      response = "Please specify the task name to complete.";
-    }
   } else if (command.includes("add task")) {
     const match = command.match(/add task (.+)/);
     if (match && match[1]) {
       const taskText = match[1].trim();
-      addTask(taskText, "", ""); // Add with no due date or category initially
+      addTask(taskText, "", ""); // Add with no due date or category initially via voice
       response = `Task "${taskText}" added.`;
     } else {
       response = "Please specify the task to add.";
+    }
+  } else if (command.includes("complete task")) {
+    const match = command.match(/complete task (.+)/);
+    if (match && match[1]) {
+      const taskNameToComplete = match[1].trim();
+      const taskToComplete = tasks.find(t => t.text.toLowerCase().includes(taskNameToComplete.toLowerCase()) && !t.completed);
+      if (taskToComplete) {
+        completeTask(taskToComplete.id); // Call the existing completeTask function
+      } else {
+        response = `Task "${taskNameToComplete}" not found or already completed.`;
+      }
+    } else {
+      response = "Please specify the task name to complete.";
     }
   } else if (command.includes("add note")) {
     const match = command.match(/add note (.+)/);
     if (match && match[1]) {
       const noteText = match[1].trim();
-      addNote(noteText, ""); // Add with no category initially
+      addNote(noteText, ""); // Add with no category initially via voice
       response = `Note "${noteText}" added.`;
     } else {
       response = "Please specify the note to add.";
     }
   } else if (command.includes("theme")) {
-    // Command example: "theme dark"
     if (command.includes("dark")) {
       setTheme("dark");
       response = "Dark theme activated.";
@@ -490,77 +553,71 @@ function handleCommand(command) {
       setTheme("vibrant");
       response = "Vibrant theme activated.";
     } else {
-      response = "Please specify a valid theme: light, dark, or vibrant.";
+      response = "Which theme would you like? Dark, light, or vibrant?";
     }
-  } else if (command.includes("points")) {
-    response = `You have ${points} points. Keep going!`;
-  } else if (command.includes("streak")) {
-    response = `Your current streak is ${streak} day${streak === 1 ? "" : "s"}.`;
-  } else if (command.includes("recommendation") || command.includes("daily tip")) {
-    response = dailyRecommendationTextEl.textContent; // Read the current recommendation
+  } else if (command.includes("how are you")) {
+    response = "I am functioning optimally, thank you for asking.";
+  } else if (command.includes("who are you")) {
+    response = "I am Jarvis, your personal AI assistant, designed to help you manage your tasks, notes, and finances.";
+  }
+  else if (command.includes("joke")) {
+    const jokes = [
+      "Why don't scientists trust atoms? Because they make up everything!",
+      "I told my wife she was drawing her eyebrows too high. She looked surprised.",
+      "What do you call a fake noodle? An impasta!",
+      "Parallel lines have so much in common. It's a shame they'll never meet."
+    ];
+    response = jokes[Math.floor(Math.random() * jokes.length)];
+  }
+  else if (command.includes("thank you") || command.includes("thanks")) {
+    response = "You're welcome! I'm here to assist.";
+  }
+  else if (command.includes("goodbye") || command.includes("bye")) {
+    response = "Goodbye! Have a productive day.";
+    recognition.stop(); // Stop listening when saying goodbye
   }
   else {
-    response = "Sorry, I didn't understand that command.";
+    response = "I'm sorry, I don't understand that command yet. Please try another or use the manual entry.";
   }
 
-  jarvisReplyEl.textContent = response;
+  speakJarvisReply(response);
 }
 
-// Daily Recommendation
+// --- Daily Recommendation Logic ---
+const dailyRecommendations = [
+    "Start your day by reviewing your top 3 most important tasks.",
+    "Take a 15-minute break every 2 hours to recharge your focus.",
+    "Prioritize tasks by urgency and importance.",
+    "Review your budget and categorize any new transactions.",
+    "Write down three things you are grateful for today.",
+    "Clear your workspace for better productivity.",
+    "Spend 30 minutes learning something new related to your goals.",
+    "Plan your meals for the week to save time and money.",
+    "Engage in light physical activity for at least 20 minutes.",
+    "Reach out to one person you haven't spoken to in a while."
+];
+
 function generateDailyRecommendation() {
-  const incompleteTasks = tasks.filter(t => !t.completed).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-  const recentNotes = notes.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const today = new Date().toDateString();
+    let lastRecommendationDate = localStorage.getItem("jarvis_last_recommendation_date");
+    let lastRecommendationIndex = parseInt(localStorage.getItem("jarvis_last_recommendation_index")) || 0;
 
-  let recommendation = "Stay productive!";
-
-  if (incompleteTasks.length > 0) {
-    const urgentTask = incompleteTasks[0];
-    if (urgentTask.dueDate && new Date(urgentTask.dueDate) < new Date()) {
-      recommendation = `Heads up! Task "${urgentTask.text}" is overdue. Time to get it done!`;
-    } else {
-      recommendation = `Your most urgent task is: "${urgentTask.text}". Focus on it today!`;
+    if (lastRecommendationDate !== today) {
+        // New day, get a new recommendation
+        lastRecommendationIndex = (lastRecommendationIndex + 1) % dailyRecommendations.length;
+        localStorage.setItem("jarvis_last_recommendation_date", today);
+        localStorage.setItem("jarvis_last_recommendation_index", lastRecommendationIndex);
     }
-  } else if (notes.length === 0) {
-    recommendation = "You have no notes. Jot down some ideas or reminders today!";
-  } else if (totalExpenses === 0) {
-    recommendation = "No transactions recorded yet this month. Keep track of your spending!";
-  } else if (points < 50) {
-    recommendation = "Earn more points by completing tasks! Aim for 'Productivity Pro' badge!";
-  }
-
-  dailyRecommendationTextEl.textContent = recommendation;
+    dailyRecommendationTextEl.textContent = dailyRecommendations[lastRecommendationIndex];
 }
 
 
-// =================
-// Theme management
-// =================
+// ==========================
+// Data Import/Export
+// ==========================
 
-function setTheme(theme) {
-  document.body.classList.remove("light", "dark", "vibrant");
-  document.body.classList.add(theme);
-  currentTheme = theme;
-  localStorage.setItem(STORAGE_KEYS.THEME, theme);
-  renderBudgetChart(); // Re-render chart for theme colors
-}
-
-function loadTheme() {
-  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
-  if (savedTheme) {
-    setTheme(savedTheme);
-    themeSelect.value = savedTheme;
-  } else {
-    setTheme("light");
-  }
-}
-
-// =======================
-// Import/Export Functionality
-// =======================
-
-function exportAllData() {
-  const data = {
+exportDataBtn.addEventListener("click", () => {
+  const allData = {
     tasks: tasks,
     notes: notes,
     transactions: transactions,
@@ -569,88 +626,91 @@ function exportAllData() {
     lastCompletionDate: lastCompletionDate,
     points: points,
     badges: badges,
-    theme: currentTheme,
   };
-  const dataStr = JSON.stringify(data, null, 2); // Pretty print JSON
-
+  const dataStr = JSON.stringify(allData, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
   a.download = "jarvis_data.json";
-  document.body.appendChild(a); // Required for Firefox
+  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a); // Clean up
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
-  jarvisReplyEl.textContent = "Data exported successfully!";
-}
+  speakJarvisReply("All your data has been exported successfully!");
+});
 
-function importAllData(event) {
+importDataBtn.addEventListener("click", () => {
+  importFileInput.click(); // Trigger the hidden file input click
+});
+
+importFileInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
-  if (!file) {
-    jarvisReplyEl.textContent = "No file selected for import.";
-    return;
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+
+        // Merge or overwrite data based on preference (here, we overwrite for simplicity)
+        tasks = importedData.tasks || [];
+        notes = importedData.notes || [];
+        transactions = importedData.transactions || [];
+        budgetGoal = importedData.budgetGoal || null;
+        streak = importedData.streak || 0;
+        lastCompletionDate = importedData.lastCompletionDate || null;
+        points = importedData.points || 0;
+        badges = importedData.badges || [];
+
+        saveAllData(); // Save imported data
+        loadAllData(); // Re-render UI based on new data
+        speakJarvisReply("Data imported successfully!");
+      } catch (error) {
+        console.error("Error importing data:", error);
+        speakJarvisReply("Failed to import data. Please ensure it's a valid JSON file.");
+      }
+    };
+    reader.readAsText(file);
   }
+});
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const importedData = JSON.parse(e.target.result);
 
-      // Validate and load data
-      if (importedData.tasks && Array.isArray(importedData.tasks)) {
-        tasks = importedData.tasks;
-      }
-      if (importedData.notes && Array.isArray(importedData.notes)) {
-        notes = importedData.notes;
-      }
-      if (importedData.transactions && Array.isArray(importedData.transactions)) {
-        transactions = importedData.transactions;
-      }
-      if (importedData.hasOwnProperty('budgetGoal')) {
-        budgetGoal = importedData.budgetGoal;
-      }
-      if (importedData.hasOwnProperty('streak')) {
-        streak = importedData.streak;
-      }
-      if (importedData.hasOwnProperty('lastCompletionDate')) {
-        lastCompletionDate = importedData.lastCompletionDate;
-      }
-      if (importedData.hasOwnProperty('points')) {
-        points = importedData.points;
-      }
-      if (importedData.badges && Array.isArray(importedData.badges)) {
-        badges = importedData.badges;
-      }
-      if (importedData.theme) {
-        setTheme(importedData.theme);
-      }
+// ==========================
+// Theme Management
+// ==========================
 
-      saveAllData(); // Save the imported data to localStorage
-      loadAllData(); // Re-render all UI components with new data
-      jarvisReplyEl.textContent = "Data imported successfully!";
-
-    } catch (error) {
-      console.error("Error parsing imported JSON:", error);
-      jarvisReplyEl.textContent = "Failed to import data. Please check the file format.";
-    }
-  };
-  reader.readAsText(file);
+function setTheme(theme) {
+  document.body.classList.remove("light", "dark", "vibrant");
+  document.body.classList.add(theme);
+  currentTheme = theme; // Update global theme variable
+  localStorage.setItem(STORAGE_KEYS.THEME, theme);
+  renderBudgetChart(); // Re-render chart with new theme colors
 }
 
+function loadTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+  if (savedTheme) {
+    setTheme(savedTheme);
+    themeSelect.value = savedTheme;
+  } else {
+    setTheme("dark"); // Default to dark if no theme saved
+  }
+}
 
-// =================
-// Event Listeners
-// =================
+// ==========================
+// Event Listeners & Initialization
+// ==========================
 
 startBtn.addEventListener("click", () => {
   if (!recognition) {
     recognition = initSpeechRecognition();
   }
-  if (!listening) {
-    recognition.start();
-  } else {
-    recognition.stop();
+  if (recognition) { // Ensure recognition is initialized before starting/stopping
+    if (!listening) {
+      recognition.start();
+    } else {
+      recognition.stop();
+    }
   }
 });
 
@@ -658,50 +718,35 @@ themeSelect.addEventListener("change", (e) => {
   setTheme(e.target.value);
 });
 
+// Manual Input Event Listeners
 addTaskBtn.addEventListener("click", () => {
-  const text = newTaskTextEl.value.trim();
-  const dueDate = newTaskDueDateEl.value; // YYYY-MM-DD format
-  const category = newTaskCategoryEl.value;
-  addTask(text, dueDate, category);
+  addTask(newTaskTextEl.value, newTaskDueDateEl.value, newTaskCategoryEl.value);
   newTaskTextEl.value = "";
   newTaskDueDateEl.value = "";
-  newTaskCategoryEl.value = "";
+  newTaskCategoryEl.value = ""; // Reset category selection
 });
 
 addNoteBtn.addEventListener("click", () => {
-  const text = newNoteTextEl.value.trim();
-  const category = newNoteCategoryEl.value;
-  addNote(text, category);
+  addNote(newNoteTextEl.value, newNoteCategoryEl.value);
   newNoteTextEl.value = "";
-  newNoteCategoryEl.value = "";
+  newNoteCategoryEl.value = ""; // Reset category selection
 });
 
 addTransactionBtn.addEventListener("click", () => {
-  const amount = transactionAmountEl.value;
-  const description = transactionDescriptionEl.value.trim();
-  const type = transactionTypeEl.value;
-  addTransaction(amount, description, type);
+  addTransaction(transactionAmountEl.value, transactionDescriptionEl.value, transactionTypeEl.value);
   transactionAmountEl.value = "";
   transactionDescriptionEl.value = "";
+  transactionTypeEl.value = "expense"; // Reset to default
 });
 
 setBudgetGoalBtn.addEventListener("click", () => {
-  const amount = budgetGoalAmountEl.value;
-  setBudgetGoal(amount);
+  setBudgetGoal(budgetGoalAmountEl.value);
   budgetGoalAmountEl.value = "";
 });
 
 
-exportDataBtn.addEventListener("click", exportAllData);
-importDataBtn.addEventListener("click", () => {
-  importFileInput.click(); // Trigger the hidden file input
+// --- On Load ---
+document.addEventListener("DOMContentLoaded", () => {
+  loadAllData(); // Load all data including theme and gamification
+  // initSpeechRecognition will be called when startBtn is clicked
 });
-importFileInput.addEventListener("change", importAllData);
-
-
-// =================
-// Initialization
-// =================
-
-// Load all data and render UI on page load
-document.addEventListener("DOMContentLoaded", loadAllData);

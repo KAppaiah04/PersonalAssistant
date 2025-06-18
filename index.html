@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jarvis Personal AI Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -14,8 +15,7 @@
     <div class="theme-switcher">
       <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
+        <option value="dark">Dark</option> <option value="light">Light</option>
         <option value="vibrant">Vibrant</option>
       </select>
     </div>
@@ -24,11 +24,11 @@
 
   <main>
     <section class="assistant-section">
-      <div class="box">
+      <div class="box voice-input">
         <h2>Voice Command</h2>
-        <p id="userSpeech">You said: "Hey Jarvis"</p>
+        <p id="userSpeech">Say "Hey Jarvis" to begin...</p>
       </div>
-      <div class="box">
+      <div class="box jarvis-response">
         <h2>Jarvis's Response</h2>
         <p id="jarvisReply"></p>
       </div>
@@ -37,30 +37,40 @@
         <div class="entry-section">
           <h3>New Task:</h3>
           <input type="text" id="newTaskText" placeholder="e.g., Get eggs by 5 PM">
+          <label for="newTaskDueDate" class="input-label">Due Date:</label>
           <input type="date" id="newTaskDueDate">
+          <label for="newTaskCategory" class="input-label">Category:</label>
           <select id="newTaskCategory">
             <option value="">Select Category</option>
             <option value="Work">Work</option>
             <option value="Personal">Personal</option>
             <option value="Home">Home</option>
+            <option value="Health">Health</option>
+            <option value="Shopping">Shopping</option>
           </select>
           <button id="addTaskBtn">Add Task</button>
         </div>
         <div class="entry-section">
           <h3>New Note:</h3>
           <input type="text" id="newNoteText" placeholder="e.g., Ideas for Q3 project">
+          <label for="newNoteCategory" class="input-label">Category:</label>
           <select id="newNoteCategory">
             <option value="">Select Category</option>
             <option value="Meeting">Meeting</option>
             <option value="Idea">Idea</option>
             <option value="Reminder">Reminder</option>
+            <option value="Learning">Learning</option>
+            <option value="Journal">Journal</option>
           </select>
           <button id="addNoteBtn">Add Note</button>
         </div>
         <div class="entry-section">
           <h3>Record Transaction:</h3>
+          <label for="transactionAmount" class="input-label">Amount:</label>
           <input type="number" id="transactionAmount" placeholder="e.g., 50.00">
+          <label for="transactionDescription" class="input-label">Description:</label>
           <input type="text" id="transactionDescription" placeholder="e.g., Groceries">
+          <label for="transactionType" class="input-label">Type:</label>
           <select id="transactionType">
             <option value="expense">Expense</option>
             <option value="income">Income</option>
@@ -68,7 +78,8 @@
           <button id="addTransactionBtn">Add Transaction</button>
         </div>
         <div class="entry-section">
-          <h3>Budget Goal:</h3>
+          <h3>Set Budget Goal:</h3>
+          <label for="budgetGoalAmount" class="input-label">Monthly Goal:</label>
           <input type="number" id="budgetGoalAmount" placeholder="e.g., 1000">
           <button id="setBudgetGoalBtn">Set Budget Goal</button>
         </div>
@@ -95,7 +106,7 @@
       </div>
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
-        <p id="dailyRecommendationText">Start with tasks closest to deadline</p>
+        <p id="dailyRecommendationText">Loading daily tip...</p>
       </div>
     </section>
 
