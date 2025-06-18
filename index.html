@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Jarvis Personal AI Assistant</title>
+  <title>Jarvis Voice Assistant</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
   <header>
-    <h1>Jarvis Personal AI Assistant</h1>
+    <h1>Jarvis Voice Assistant</h1>
     <div class="theme-switcher">
       <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
-        <option value="dark">Dark</option>
         <option value="light">Light</option>
+        <option value="dark">Dark</option>
         <option value="vibrant">Vibrant</option>
       </select>
     </div>
@@ -25,129 +25,77 @@
 
   <main>
     <section class="assistant-section">
-      <div class="box voice-input">
-        <h2>Voice Command</h2>
-        <p id="userSpeech">Say "Hey Jarvis" to begin...</p>
+      <div class="box">
+        <h2>Your Speech</h2>
+        <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
       </div>
-      <div class="box jarvis-response">
-        <h2>Jarvis's Response</h2>
-        <p id="jarvisReply">Waiting for your command.</p>
-      </div>
-
-      <div class="box manual-entry">
-        <h2>Manual Quick Entry</h2>
-
-        <div class="entry-section new-task-entry">
-          <h3>New Task</h3>
-          <input type="text" id="newTaskText" placeholder="e.g., Buy groceries by 5 PM" />
-          <label for="newTaskDueDate" class="input-label">Due Date:</label>
-          <input type="date" id="newTaskDueDate" />
-          <label for="newTaskCategory" class="input-label">Category:</label>
-          <select id="newTaskCategory">
-            <option value="Personal">Personal</option>
-            <option value="Work">Work</option>
-            <option value="Health">Health</option>
-            <option value="Finance">Finance</option>
-            <option value="Other">Other</option>
-          </select>
-          <button id="addTaskBtn">Add Task</button>
-        </div>
-
-        <div class="entry-section new-note-entry">
-          <h3>New Note</h3>
-          <input type="text" id="newNoteText" placeholder="e.g., Ideas for Q3 project" />
-          <label for="newNoteCategory" class="input-label">Category:</label>
-          <select id="newNoteCategory">
-            <option value="General">General</option>
-            <option value="Meeting">Meeting</option>
-            <option value="Idea">Idea</option>
-            <option value="Learning">Learning</option>
-            <option value="Personal">Personal</option>
-          </select>
-          <button id="addNoteBtn">Add Note</button>
-        </div>
-
-        <div class="entry-section record-transaction-entry">
-          <h3>Record Transaction</h3>
-          <input type="number" id="transactionAmount" placeholder="Amount: e.g., 50.00" />
-          <input type="text" id="transactionDescription" placeholder="Description: e.g., Groceries" />
-          <label for="transactionCategory" class="input-label">Category:</label>
-          <select id="transactionCategory">
-            <option value="Food">Food</option>
-            <option value="Transport">Transport</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Utilities">Utilities</option>
-            <option value="Salary">Salary</option>
-            <option value="Other">Other</option>
-          </select>
-          <label for="transactionType" class="input-label">Type:</label>
-          <select id="transactionType">
-            <option value="Expense">Expense</option>
-            <option value="Income">Income</option>
-          </select>
-          <button id="addTransactionBtn">Add Transaction</button>
-        </div>
-
-        <div class="entry-section budget-goal-entry">
-            <h3>Set Monthly Budget Goal</h3>
-            <input type="number" id="monthlyBudgetGoal" placeholder="Goal Amount: e.g., 1500" />
-            <button id="setBudgetGoalBtn">Set Budget Goal</button>
-        </div>
+      <div class="box">
+        <h2>Jarvis Reply</h2>
+        <p id="jarvisReply"></p>
       </div>
     </section>
 
     <section class="dashboard">
       <h2>Dashboard Overview</h2>
+
+      <div class="card add-task">
+        <h4>Add New Task</h4>
+        <input type="text" id="newTaskInput" placeholder="Enter new task description"
+          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <input type="text" id="newTaskDueDate" placeholder="Due Date (YYYY-MM-DD)"
+          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
+        <button id="addTaskBtn"
+          style="background-color: var(--primary-color); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Add
+          Task</button>
+      </div>
+
+      <div class="card add-note">
+        <h4>Add New Note</h4>
+        <textarea id="newNoteInput" placeholder="Enter new note" rows="3"
+          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+        <button id="addNoteBtn"
+          style="background-color: var(--primary-color); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Add
+          Note</button>
+      </div>
+
       <div class="card upcoming-tasks">
-        <h4>Your Tasks (<span id="taskFilterCategory">All</span>)</h4>
+        <h4>Upcoming Tasks</h4>
         <ul id="taskList">
           </ul>
       </div>
+
+      <div class="card budget-overview">
+        <h4>Budget Overview</h4>
+        <p id="budgetOverview">60% used this month</p>
+        <canvas id="budgetChart" width="300" height="150"></canvas>
+      </div>
+
       <div class="card recent-notes">
-        <h4>Your Notes</h4>
+        <h4>Recent Notes</h4>
         <ul id="notesList">
           </ul>
       </div>
-      <div class="card budget-overview">
-        <h4>Budget Overview</h4>
-        <p id="currentBudgetGoal">Monthly Goal: --</p>
-        <canvas id="budgetChart" width="300" height="150"></canvas>
-        <p id="budgetSummary"></p>
-        <h5>Recent Transactions:</h5>
-        <ul id="recentTransactionsList" class="recent-transactions-list">
-            </ul>
-      </div>
+
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
-        <p id="dailyRecommendationText">Start with tasks closest to deadline.</p>
+        <p>Start with tasks closest to deadline</p>
       </div>
     </section>
 
     <section class="gamification">
       <h2>Achievements & Productivity</h2>
-      <div class="stats-container">
-        <p>Streak: <span id="streakCount">0</span> days</p>
-        <p>Points: <span id="pointsCount">0</span></p>
-      </div>
+      <p>Streak: <span id="streakCount">0</span> days</p>
+      <p>Points: <span id="pointsCount">0</span></p>
       <div id="badges" class="badges">
         </div>
     </section>
-
-    <section class="data-management">
-        <h2>Data Management</h2>
-        <button id="exportDataBtn">Export All Data (JSON)</button>
-        <input type="file" id="importDataInput" accept=".json" style="display: none;" />
-        <button id="importDataBtn">Import Data</button>
-        <button id="clearAllDataBtn">Clear All Data</button>
-    </section>
-
   </main>
 
   <footer>
-    <p>© 2025 Jarvis Assistant</p>
+    <p>&copy; 2025 Jarvis Voice Assistant. All rights reserved.</p>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="app.js"></script>
 </body>
+
 </html>

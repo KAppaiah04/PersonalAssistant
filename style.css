@@ -1,716 +1,492 @@
-/* ===========================================
-// Jarvis Personal AI Assistant Styling
-// (Netflix-kind Immersive UI)
-// =========================================== */
-
 :root {
-  /* Color Palette - Dark Theme (Netflix Inspired) */
-  --color-bg-dark: #141414; /* Deep Dark */
-  --color-text-dark: #e5e5e5; /* Soft White */
-  --card-bg-dark: #1f1f1f; /* Slightly lighter than bg */
-  --primary-color-dark: #e50914; /* Netflix Red */
-  --accent-color-dark: #b80d0d; /* Darker Red for emphasis */
-  --border-color-dark: #333; /* Subtle borders */
-  --primary-color-dark-rgb: 229, 9, 20; /* For shadows */
+  --color-bg-light: #f0f0f3;
+  --color-text-light: #222;
+  --color-bg-dark: #121212;
+  --color-text-dark: #eee;
+  --color-bg-vibrant: #fffcf0;
+  --color-text-vibrant: #1b1b3a;
 
-  /* Color Palette - Light Theme */
-  --color-bg-light: #f5f5f5;
-  --color-text-light: #333;
-  --card-bg-light: #ffffff;
-  --primary-color-light: #007bff; /* Standard Blue */
-  --accent-color-light: #28a745; /* Green for positive actions */
+  --primary-color: #0078d7; /* A strong blue */
+  --accent-color: #ff5c57; /* A vibrant red-orange */
+
+  --card-bg-light: #fff;
+  --card-bg-dark: #1e1e1e;
+  --card-bg-vibrant: #fff7e6;
+
   --border-color-light: #ddd;
-  --primary-color-light-rgb: 0, 123, 255;
-
-  /* Color Palette - Vibrant Theme */
-  --color-bg-vibrant: #ffe0b2; /* Warm Peach */
-  --color-text-vibrant: #4a148c; /* Deep Purple */
-  --card-bg-vibrant: #fff3e0; /* Lighter Warm Peach */
-  --primary-color-vibrant: #ff5722; /* Deep Orange */
-  --accent-color-vibrant: #673ab7; /* Medium Purple */
-  --border-color-vibrant: #e0e0e0;
-  --primary-color-vibrant-rgb: 255, 87, 34;
-
-  /* Global variables (default to dark theme values) */
-  --font-family-primary: 'Inter', sans-serif;
-  --spacing-unit: 1rem;
-  --border-radius: 8px;
-  --transition-speed: 0.3s ease;
-
-  /* Dynamic variables, set by theme classes */
-  --color-bg: var(--color-bg-dark);
-  --color-text: var(--color-text-dark);
-  --card-bg: var(--card-bg-dark);
-  --primary-color: var(--primary-color-dark);
-  --accent-color: var(--accent-color-dark);
-  --border-color: var(--border-color-dark);
-  --primary-rgb: var(--primary-color-dark-rgb);
+  --border-color-dark: #333;
 }
 
-/* Theme-specific overrides */
+/* Base Body Styles - Increased Font Size & Readability */
+body {
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A clear, modern font */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-size: 1.1rem; /* Increased base font size */
+  line-height: 1.6; /* Improved line spacing for readability */
+}
+
+/* Theme-specific styles */
 body.light {
-  --color-bg: var(--color-bg-light);
-  --color-text: var(--color-text-light);
-  --card-bg: var(--card-bg-light);
-  --primary-color: var(--primary-color-light);
-  --accent-color: var(--accent-color-light);
-  --border-color: var(--border-color-light);
-  --primary-rgb: var(--primary-color-light-rgb);
+  background-color: var(--color-bg-light);
+  color: var(--color-text-light);
+}
+
+body.dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-dark);
 }
 
 body.vibrant {
-  --color-bg: var(--color-bg-vibrant);
-  --color-text: var(--color-text-vibrant);
-  --card-bg: var(--card-bg-vibrant);
-  --primary-color: var(--primary-color-vibrant);
-  --accent-color: var(--accent-color-vibrant);
-  --border-color: var(--border-color-vibrant);
-  --primary-rgb: var(--primary-color-vibrant-rgb);
+  background-color: var(--color-bg-vibrant);
+  color: var(--color-text-vibrant);
 }
 
-/* --- Base Styles --- */
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: var(--font-family-primary);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  margin: 0;
-  padding: 0;
-  line-height: 1.6;
-  transition: background-color var(--transition-speed), color var(--transition-speed);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--primary-color);
-  margin-top: 0;
-  margin-bottom: var(--spacing-unit);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-h1 { font-size: 2.5rem; }
-h2 { font-size: 2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.2rem; }
-
-a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: color var(--transition-speed);
-}
-a:hover {
-  color: var(--accent-color);
-}
-
-/* --- Header --- */
+/* Header Styles */
 header {
-  padding: var(--spacing-unit) 2rem;
+  padding: 1.5rem; /* Increased padding */
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: var(--card-bg); /* Use card background for a subtle header */
-  color: var(--color-text);
+  background: var(--primary-color);
+  color: white;
   flex-wrap: wrap;
-  gap: var(--spacing-unit);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  border-bottom: 1px solid var(--border-color);
+  gap: 1.5rem; /* Increased gap */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 header h1 {
   margin: 0;
   font-weight: 700;
-  font-size: 1.8rem;
-  color: var(--color-text); /* Header title uses main text color */
-}
-
-.theme-switcher {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-size: 2.2rem; /* Adjusted H1 size */
 }
 
 .theme-switcher label {
-  font-size: 0.9rem;
-  color: var(--color-text);
+  margin-right: 0.5rem;
+  font-size: 1rem;
 }
 
 .theme-switcher select {
   padding: 0.5rem 0.8rem;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-  background-color: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-family-primary);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1rem;
   cursor: pointer;
-  appearance: none; /* Remove default select arrow */
-  /* Custom arrow for select - inverted for dark, default for light */
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e5e5e5%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E');
+  -webkit-appearance: none; /* Remove default arrow on some browsers */
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22white%22%20d%3D%22M287%2C197.3L159.2%2C69.5c-4.7-4.7-12.3-4.7-17%2C0L5.4%2C197.3c-4.7%2C4.7-4.7%2C12.3%2C0%2C17l19.8%2C19.8c4.7%2C4.7%2C12.3%2C4.7%2C17%2C0l106.8-106.8l106.8%2C106.8c4.7%2C4.7%2C12.3%2C4.7%2C17%2C0l19.8-19.8C291.7%2C209.6%2C291.7%2C202%2C287%2C197.3z%22%2F%3E%3C%2Fsvg%3E'); /* Custom dropdown arrow */
   background-repeat: no-repeat;
   background-position: right 0.7em top 50%;
   background-size: 0.65em auto;
-  transition: background-color var(--transition-speed), border-color var(--transition-speed);
 }
 
-body.light .theme-switcher select {
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E');
-}
-body.vibrant .theme-switcher select {
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a148c%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E');
-}
-
-
-/* --- Buttons --- */
-button {
-  background-color: var(--primary-color);
-  color: white;
+header button {
+  padding: 0.8rem 1.5rem; /* Increased padding */
   border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 1rem;
-  font-family: var(--font-family-primary);
-  transition: background-color var(--transition-speed), transform 0.1s ease-out, box-shadow var(--transition-speed);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-button:hover:not(:disabled) {
+  border-radius: 8px; /* Slightly more rounded corners */
   background-color: var(--accent-color);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-button:disabled {
-  background-color: var(--border-color);
-  cursor: not-allowed;
-  opacity: 0.7;
-  box-shadow: none;
-}
-
-/* Action buttons within lists (edit/delete/complete) */
-.action-btn {
-  background: none;
-  border: 1px solid var(--border-color);
-  color: var(--color-text);
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  margin-left: 0.5rem;
-  box-shadow: none;
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
-}
-
-.action-btn:hover {
-  background-color: var(--primary-color);
   color: white;
-  border-color: var(--primary-color);
-  transform: none; /* Override general button hover transform */
-  box-shadow: none;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
-.action-btn.edit-btn:hover { background-color: #007bff; }
-.action-btn.delete-btn:hover { background-color: var(--accent-color); }
-.action-btn.complete-btn:hover { background-color: #28a745; }
 
+header button:hover {
+  background-color: #ff7873; /* Slightly lighter accent */
+  transform: translateY(-1px);
+}
 
-/* --- Main Content Layout --- */
+header button:active {
+  transform: translateY(0);
+}
+
+/* Main Content Layout */
 main {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  padding: 2rem;
+  flex: 1;
+  padding: 2rem; /* Increased overall padding */
   max-width: 1200px;
-  margin: 2rem auto;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  main {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@media (min-width: 1024px) {
-  main {
-    grid-template-columns: 2fr 1fr; /* Assistant and Dashboard side-by-side */
-  }
-  .dashboard {
-      grid-row: span 2; /* Dashboard takes more vertical space */
-  }
-  .gamification {
-      grid-column: 1 / -1; /* Gamification spans full width at bottom */
-  }
-  .data-management {
-      grid-column: 1 / -1; /* Data Management spans full width at bottom */
-  }
-}
-
-/* --- Sections & Boxes --- */
-section {
-  padding: 0; /* Cards handle padding */
-}
-
-section h2 {
-  color: var(--primary-color);
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-weight: 700;
-  font-size: 2rem;
-  border-bottom: 2px solid var(--border-color);
-  padding-bottom: 0.5rem;
-  text-align: center;
-}
-
-.box, .card {
-  background-color: var(--card-bg);
-  border-radius: var(--border-radius);
-  padding: 1.5rem;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4); /* Deeper shadow for immersive feel */
-  transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
-}
-
+/* Assistant Section */
 .assistant-section {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2rem;
+  gap: 1.5rem; /* Increased gap */
+  margin-bottom: 2.5rem; /* Increased margin */
 }
 
 @media (min-width: 768px) {
   .assistant-section {
-    grid-template-columns: 1fr 1fr; /* Voice command and response side-by-side */
-    grid-template-rows: auto auto 1fr; /* Response, then manual entry takes rest */
-  }
-  .manual-entry {
-    grid-column: 1 / -1; /* Manual entry spans full width */
+    grid-template-columns: 1fr 1fr;
   }
 }
 
-.box h2, .card h4 {
-  color: var(--primary-color);
+.box {
+  background-color: var(--card-bg-light);
+  border-radius: 10px; /* Slightly more rounded */
+  padding: 1.8rem; /* Increased padding */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark .box {
+  background-color: var(--card-bg-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+body.vibrant .box {
+  background-color: var(--card-bg-vibrant);
+  box-shadow: 0 4px 12px rgba(27, 27, 58, 0.15);
+}
+
+.box h2 {
   margin-top: 0;
   margin-bottom: 1rem;
-  font-weight: 700;
-  font-size: 1.4rem;
+  font-size: 1.6rem; /* Adjusted H2 size */
+  color: var(--primary-color);
+  font-weight: 600;
 }
 
-.voice-input, .jarvis-response {
-  min-height: 120px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.box p {
+  margin-bottom: 0;
+  font-size: 1.05rem; /* Slightly larger paragraph text */
+}
+
+/* Dashboard Section */
+.dashboard {
+  margin-bottom: 2.5rem; /* Increased margin */
+}
+
+.dashboard h2 {
+  font-size: 2rem; /* Adjusted H2 size for dashboard title */
+  margin-bottom: 1.8rem; /* Increased margin */
   text-align: center;
-}
-.voice-input p, .jarvis-response p {
-  font-size: 1.1rem;
-  font-style: italic;
-  color: var(--color-text);
+  color: var(--color-text-light); /* Default to light text, themes will override */
 }
 
-/* Manual Entry Styles */
-.manual-entry {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid for entry sections */
-  gap: 1.5rem;
-  padding: 1.5rem;
+body.dark .dashboard h2 {
+  color: var(--color-text-dark);
 }
 
-.entry-section {
-  background-color: rgba(0, 0, 0, 0.2); /* Slightly transparent background */
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2); /* Inner shadow for depth */
+body.vibrant .dashboard h2 {
+  color: var(--color-text-vibrant);
 }
 
-.entry-section h3 {
-  margin-bottom: 1rem;
-  color: var(--accent-color); /* Highlight sub-headings */
-  font-size: 1.3rem;
-  border-bottom: 1px dashed var(--border-color);
-  padding-bottom: 0.5rem;
-}
-
-.entry-section input[type="text"],
-.entry-section input[type="date"],
-.entry-section input[type="number"],
-.entry-section select,
-.edit-input, .edit-textarea {
-  padding: 0.7rem;
-  border-radius: 5px;
-  border: 1px solid var(--border-color);
-  background-color: rgba(0, 0, 0, 0.15); /* Slightly transparent */
-  color: var(--color-text);
-  font-family: var(--font-family-primary);
-  font-size: 1rem;
-  transition: border-color var(--transition-speed), box-shadow 0.2s ease;
-}
-
-.entry-section input::placeholder {
-  color: rgba(229, 229, 229, 0.7); /* For dark theme */
-}
-body.light .entry-section input::placeholder {
-  color: rgba(51, 51, 51, 0.7); /* For light theme */
-}
-body.vibrant .entry-section input::placeholder {
-  color: rgba(74, 20, 140, 0.7); /* For vibrant theme */
-}
-
-
-.entry-section input:focus,
-.entry-section select:focus,
-.edit-input:focus, .edit-textarea:focus {
-  border-color: var(--primary-color);
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3);
-}
-
-.input-label {
-  font-size: 0.9em;
-  color: var(--color-text);
-  margin-top: 0.5rem;
-}
-
-.entry-section button {
-    margin-top: 1rem;
-    width: 100%;
-}
-
-
-/* Dashboard Cards */
 .dashboard {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem; /* Increased gap between cards */
 }
-@media (min-width: 768px) {
-  .dashboard {
-    grid-template-columns: 1fr 1fr; /* Two columns in dashboard */
-  }
-}
-@media (min-width: 1024px) {
-    .dashboard {
-        grid-column: 2 / 3; /* Dashboard on the right column */
-        grid-template-columns: 1fr; /* Stack cards vertically in right column */
-    }
-}
-
 
 .card {
-  min-height: 200px; /* Ensure cards have some height */
+  background-color: var(--card-bg-light);
+  border-radius: 10px; /* Slightly more rounded */
+  padding: 1.8rem; /* Increased padding */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
 }
 
-.card ul {
-  list-style: none; /* Remove default bullets */
+body.dark .card {
+  background-color: var(--card-bg-dark);
+  box-shadow: none; /* Dark cards often look better with less prominent shadows */
+  border: 1px solid var(--border-color-dark); /* Add a subtle border for definition */
+}
+
+body.vibrant .card {
+  background-color: var(--card-bg-vibrant);
+  box-shadow: 0 4px 12px rgba(27, 27, 58, 0.15);
+}
+
+.card h4 {
+  margin-top: 0;
+  margin-bottom: 1rem; /* Increased margin */
+  font-weight: 700;
+  font-size: 1.25rem; /* Adjusted H4 size */
+  color: var(--primary-color); /* Highlight card titles */
+}
+
+.card p {
+  font-size: 1rem; /* Consistent paragraph size within cards */
+  margin-bottom: 0.8rem;
+}
+
+/* Task and Note Lists */
+#taskList,
+#notesList {
+  list-style-type: none; /* Remove default bullets */
   padding: 0;
   margin: 0;
-  max-height: 200px; /* Limit height for scroll */
+  max-height: 180px; /* Increased max-height for more visible items */
   overflow-y: auto;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--primary-color) var(--card-bg-light); /* Firefox */
 }
 
-.card ul li {
-  background-color: rgba(0, 0, 0, 0.1); /* Subtle background for list items */
-  border: 1px solid var(--border-color);
+/* Custom scrollbar for Webkit browsers */
+#taskList::-webkit-scrollbar,
+#notesList::-webkit-scrollbar {
+  width: 8px;
+}
+
+#taskList::-webkit-scrollbar-track,
+#notesList::-webkit-scrollbar-track {
+  background: var(--card-bg-light);
+  border-radius: 10px;
+}
+
+body.dark #taskList::-webkit-scrollbar-track,
+body.dark #notesList::-webkit-scrollbar-track {
+  background: var(--card-bg-dark);
+}
+
+#taskList::-webkit-scrollbar-thumb,
+#notesList::-webkit-scrollbar-thumb {
+  background-color: var(--primary-color);
+  border-radius: 10px;
+  border: 2px solid var(--card-bg-light);
+}
+
+body.dark #taskList::-webkit-scrollbar-thumb,
+body.dark #notesList::-webkit-scrollbar-thumb {
+  border: 2px solid var(--card-bg-dark);
+}
+
+
+#taskList li,
+#notesList li {
+  background-color: rgba(0, 120, 215, 0.05); /* Light background for items */
+  padding: 0.7rem 1rem; /* Adjusted padding */
+  margin-bottom: 0.6rem; /* Spacing between list items */
   border-radius: 6px;
-  padding: 0.7rem 1rem;
-  margin-bottom: 0.7rem;
   display: flex;
-  flex-wrap: wrap; /* Allow content and buttons to wrap */
   align-items: center;
   justify-content: space-between;
-  font-size: 0.95rem;
-  transition: background-color 0.2s ease, transform 0.1s ease-out;
+  font-size: 1rem; /* Consistent size */
+  border: 1px solid var(--border-color-light); /* Subtle border for definition */
 }
 
-.card ul li:hover {
-  background-color: rgba(0, 0, 0, 0.2);
-  /* transform: translateX(5px); Removed to not interfere with edit controls */
+body.dark #taskList li,
+body.dark #notesList li {
+  background-color: rgba(58, 134, 255, 0.1);
+  border: 1px solid var(--border-color-dark);
 }
 
-.card ul li:last-child {
-  margin-bottom: 0;
+#taskList li span,
+#notesList li span {
+  flex-grow: 1;
+  cursor: pointer;
 }
 
-.item-content {
-    flex-grow: 1;
-    margin-right: 1rem; /* Space between content and buttons */
-    white-space: normal; /* Allow text to wrap */
-    word-break: break-word; /* Break long words */
+#taskList li.completed span {
+  text-decoration: line-through;
+  color: #888;
 }
 
-.item-controls {
+.due-date {
+  font-size: 0.9rem;
+  color: #777;
+  margin-left: 10px;
+  white-space: nowrap; /* Prevent due date from wrapping if short */
+}
+
+body.dark .due-date {
+  color: #bbb;
+}
+
+.delete-btn {
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 1rem;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  flex-shrink: 0; /* Prevent buttons from shrinking */
+  justify-content: center;
+  transition: background-color 0.2s ease;
 }
 
-/* Task Specific Styles */
-.completed-task {
-  text-decoration: line-through;
-  opacity: 0.7;
-  color: #777;
-  background-color: rgba(0, 128, 0, 0.1); /* Light green tint */
-}
-body.dark .completed-task {
-  background-color: rgba(0, 128, 0, 0.05);
+.delete-btn:hover {
+  background-color: #d13a3a;
 }
 
-.overdue-task {
-  color: var(--accent-color); /* Red for overdue */
-  font-weight: 500;
-}
-
-.task-meta {
-    font-size: 0.85em;
-    color: #999;
-    margin-top: 0.3rem;
-    display: block;
-}
-
-/* Budget specific styles */
-#budgetChart {
+/* Budget Overview */
+.budget-overview canvas {
   max-width: 100%;
   height: auto;
-  border-radius: var(--border-radius);
-  background-color: rgba(0, 0, 0, 0.1);
-  padding: 0.5rem;
-  margin-top: 1rem;
-  border: 1px solid var(--border-color);
-}
-
-#currentBudgetGoal {
-  font-weight: 600;
-  color: var(--primary-color);
-  margin-bottom: 0.8rem;
-  text-align: center;
-  font-size: 1.1rem;
-}
-
-#budgetSummary {
-  font-size: 0.95rem;
-  line-height: 1.5;
+  max-height: 250px; /* Adjust max height for chart */
   margin-top: 1rem;
 }
 
-#budgetSummary b {
-  color: var(--accent-color); /* Highlight over budget status */
-}
-
-.recent-transactions-list {
-  max-height: 120px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.transaction-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 0.5rem 0.8rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.9em;
-}
-
-.transaction-item .transaction-details {
-    flex-grow: 1;
-    margin-right: 10px;
-    display: flex;
-    flex-direction: column;
-}
-.transaction-item .transaction-details span {
-    display: block;
-}
-.transaction-item .amount {
-    font-weight: bold;
-    color: #28a745; /* Green for income */
-}
-.transaction-item.expense .amount {
-    color: var(--accent-color); /* Red for expense */
-}
-.transaction-item .date {
-    font-size: 0.8em;
-    color: #999;
-}
-
-.transaction-item .action-btn {
-    padding: 0.3em 0.5em;
-    font-size: 0.8em;
-}
-
-
-/* Daily Recommendation */
-.daily-recommendation p {
-  font-style: italic;
+/* Form Input Styles (for new task/note) */
+.card input[type="text"],
+.card textarea {
+  width: 100%;
+  padding: 10px 12px; /* Increased padding */
+  margin-bottom: 10px;
+  border: 1px solid var(--border-color-light);
+  border-radius: 6px;
   font-size: 1rem;
-  color: var(--primary-color);
-  text-align: center;
+  box-sizing: border-box;
+  background-color: var(--color-bg-light); /* Match background */
+  color: var(--color-text-light); /* Match text color */
 }
 
-/* Gamification */
+body.dark .card input[type="text"],
+body.dark .card textarea {
+  border-color: var(--border-color-dark);
+  background-color: #2a2a2a; /* Darker input background */
+  color: var(--color-text-dark);
+}
+
+.card input[type="text"]::placeholder,
+.card textarea::placeholder {
+  color: #999;
+}
+
+body.dark .card input[type="text"]::placeholder,
+body.dark .card textarea::placeholder {
+  color: #777;
+}
+
+.card button {
+  width: auto; /* Allow button to size to content */
+  padding: 0.8rem 1.2rem; /* Consistent button padding */
+  border: none;
+  border-radius: 6px;
+  background-color: var(--primary-color);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  align-self: flex-start; /* Align button to start of card */
+}
+
+.card button:hover {
+  background-color: #0060ad; /* Darker primary on hover */
+}
+
+
+/* Gamification Section */
 .gamification {
+  background-color: var(--card-bg-light);
+  padding: 2rem; /* Increased padding */
+  border-radius: 10px; /* Slightly more rounded */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  background-color: var(--card-bg);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-  margin-top: 2rem;
+  max-width: 600px; /* Wider max-width */
+  margin: 2.5rem auto 3rem auto; /* Increased top margin */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.stats-container {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+body.dark .gamification {
+  background-color: var(--card-bg-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-color-dark);
 }
 
-.stats-container span {
-  color: var(--accent-color);
-  font-weight: 700;
-  font-size: 1.3rem;
+body.vibrant .gamification {
+  background-color: var(--card-bg-vibrant);
+  box-shadow: 0 4px 12px rgba(27, 27, 58, 0.15);
+}
+
+.gamification h2 {
+  font-size: 1.8rem; /* Adjusted H2 size */
+  margin-bottom: 1.5rem; /* Increased margin */
+  color: var(--primary-color);
+}
+
+.gamification p {
+  font-size: 1.1rem; /* Consistent paragraph size */
+  margin-bottom: 0.8rem;
 }
 
 .badges {
+  margin-top: 1.5rem; /* Increased margin */
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.8rem;
-  min-height: 50px;
-  align-items: center;
+  gap: 0.8rem; /* Increased gap */
 }
 
 .badge {
-  background-color: var(--primary-color);
+  background-color: var(--accent-color);
   color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  padding: 0.6rem 1.2rem; /* Adjusted padding */
+  border-radius: 20px; /* More rounded pill shape */
+  font-size: 0.95rem;
   font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease-out;
-}
-.badge:hover {
-  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Data Management Section */
-.data-management {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 1.5rem;
-    background-color: var(--card-bg);
-    border-radius: var(--border-radius);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
-    margin-top: 2rem;
-    border: 1px solid var(--border-color);
-}
-.data-management button {
-    flex-grow: 1;
-    max-width: 250px;
+/* Footer Styles */
+footer {
+  padding: 1.5rem; /* Increased padding */
+  background: var(--primary-color);
+  color: white;
+  text-align: center;
+  margin-top: auto; /* Push footer to bottom */
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.2);
 }
 
-
-/* --- Edit Mode Specific Styles --- */
-li.editing {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+footer p {
+  margin: 0;
+  font-size: 0.95rem; /* Slightly larger footer text */
 }
-li.editing .item-content {
-    width: 100%; /* Take full width in editing mode */
-    margin-right: 0;
-}
-
-li .edit-input, li .edit-textarea {
-  flex-grow: 1; /* Take up available space */
-  margin-right: 0.5rem;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  background-color: rgba(var(--primary-rgb), 0.1); /* Subtle highlight */
-  width: calc(100% - 1rem); /* Account for padding */
-}
-
-li .edit-textarea {
-  min-height: 60px; /* Ensure it's tall enough */
-  resize: vertical;
-}
-
-li .edit-save-btn, li .edit-cancel-btn {
-  padding: 0.5rem 0.8rem;
-  font-size: 0.8rem;
-  margin-left: 0.5rem;
-  box-shadow: none;
-  background-color: #28a745; /* Green for Save */
-  border: none;
-}
-li .edit-cancel-btn {
-  background-color: var(--accent-color); /* Red for Cancel */
-}
-li .edit-save-btn:hover { background-color: #218838; }
-li .edit-cancel-btn:hover { background-color: #c82333; }
 
 /* Responsive Adjustments */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
   }
+
   header h1 {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  .theme-switcher {
-    width: 100%;
-    justify-content: center;
-  }
-  #startBtn {
-    width: 100%;
-  }
-
-  main {
-    padding: 1rem;
-    gap: 1.5rem;
-  }
-
-  h2 {
     font-size: 1.8rem;
   }
 
-  .box, .card {
-    padding: 1rem;
+  header button {
+    width: 100%;
+    text-align: center;
   }
-  .manual-entry {
-      grid-template-columns: 1fr; /* Stack manual entries on small screens */
+
+  main {
+    padding: 1.5rem;
   }
-  .data-management {
-      flex-direction: column;
-      align-items: center;
+
+  .dashboard {
+    grid-template-columns: 1fr; /* Stack cards on smaller screens */
   }
-  .data-management button {
-      width: 100%;
-      max-width: 300px;
+
+  .box {
+    padding: 1.5rem;
+  }
+
+  .box h2 {
+    font-size: 1.4rem;
+  }
+
+  .gamification {
+    padding: 1.5rem;
   }
 }
