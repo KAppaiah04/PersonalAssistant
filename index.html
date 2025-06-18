@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jarvis Voice Assistant</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Roboto&display=swap" rel="stylesheet" />
 </head>
+
 <body>
   <header>
     <h1>Jarvis Voice Assistant</h1>
-    <button id="startBtn">Activate Jarvis</button>
+    <div class="theme-switcher">
+      <label for="themeSelect">Choose Theme:</label>
+      <select id="themeSelect">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="vibrant">Vibrant</option>
+      </select>
+    </div>
+    <button id="startBtn" aria-label="Activate Jarvis">Activate Jarvis</button>
   </header>
 
   <main>
-    <section class="speech-section">
+    <section class="assistant-section">
       <div class="box">
         <h2>Your Speech</h2>
         <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
@@ -27,32 +36,44 @@
 
     <section class="dashboard">
       <h2>Dashboard Overview</h2>
-      <div class="cards">
-        <div class="card tasks-card">
-          <h3>Upcoming Tasks</h3>
-          <ul id="taskList"></ul>
-        </div>
-        <div class="card budget-card">
-          <h3>Budget Overview</h3>
-          <canvas id="budgetChart" width="300" height="150"></canvas>
-          <p id="budgetSummary"></p>
-        </div>
-        <div class="card notes-card">
-          <h3>Recent Notes</h3>
-          <ul id="notesList"></ul>
-        </div>
-        <div class="card recommendations-card">
-          <h3>Daily Recommendation</h3>
-          <p id="dailyRecommendation">Stay focused and take breaks!</p>
-        </div>
+      <div class="card upcoming-tasks">
+        <h4>Upcoming Tasks</h4>
+        <ul id="taskList">
+          <li>Submit budget report</li>
+        </ul>
+      </div>
+      <div class="card budget-overview">
+        <h4>Budget Overview</h4>
+        <p id="budgetOverview">60% used this month</p>
+        <canvas id="budgetChart" width="300" height="150"></canvas>
+      </div>
+      <div class="card recent-notes">
+        <h4>Recent Notes</h4>
+        <ul id="notesList">
+          <li>AI project progress</li>
+        </ul>
+      </div>
+      <div class="card daily-recommendation">
+        <h4>Daily Recommendation</h4>
+        <p>Start with tasks closest to deadline</p>
+      </div>
+    </section>
+
+    <section class="gamification">
+      <h2>Achievements & Productivity</h2>
+      <p>Streak: <span id="streakCount">0</span> days</p>
+      <p>Points: <span id="pointsCount">0</span></p>
+      <div id="badges" class="badges">
+        <!-- badges will be shown here -->
       </div>
     </section>
   </main>
 
   <footer>
-    <small>© 2025 Jarvis Assistant</small>
+    <p>© 2025 Jarvis Assistant</p>
   </footer>
 
   <script src="app.js"></script>
 </body>
+
 </html>

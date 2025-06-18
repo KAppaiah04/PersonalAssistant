@@ -1,258 +1,198 @@
-// app.js
+// ==========================
+// Jarvis Voice Assistant App
+// ==========================
 
-// ----------- Data and localStorage Setup ------------
+const startBtn = document.getElementById("startBtn");
+const userSpeech = document.getElementById("userSpeech");
+const jarvisReply = document.getElementById("jarvisReply");
+const taskList = document.getElementById("taskList");
+const notesList = document.getElementById("notesList");
+const budgetOverview = document.getElementById("budgetOverview");
+const budgetChart = document.getElementById("budgetChart").getContext("2d");
+const streakCountEl = document.getElementById("streakCount");
+const pointsCountEl = document.getElementById("pointsCount");
+const badgesEl = document.getElementById("badges");
+const themeSelect = document.getElementById("themeSelect");
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [
-  { id: 1, text: "Call Mom", due: "2025-06-20", priority: "High", recurring: false, completed: false },
-  { id: 2, text: "Submit budget report", due: "2025-06-22", priority: "Medium", recurring: true, completed: false }
+let recognition;
+let listening = false;
+let currentTheme = 'light';
+
+const tasks = [
+  { id: 1, text: "Submit budget report", completed: false, dueDate: "2025-06-20" },
+  { id: 2, text: "Finish AI presentation", completed: false, dueDate: "2025-06-19" },
+  { id: 3, text: "Review project plan", completed: true, dueDate: "2025-06-18" },
 ];
 
-let budget = JSON.parse(localStorage.getItem("budget")) || {
-  income: 5000,
-  expenses: [
-    { category: "Rent", amount: 1200 },
-    { category: "Groceries", amount: 450 },
-    { category: "Utilities", amount: 300 }
-  ],
-  monthlyGoal: 4000
+const notes = [
+  "AI project progress",
+  "Meeting notes from 17th June",
+];
+
+const budgetData = [1000, 800, 600, 400, 200, 100]; // sample monthly spending data for chart
+
+// --- Gamification state saved in localStorage ---
+const STORAGE_KEYS = {
+  STREAK: "jarvis_streak",
+  LAST_COMPLETION_DATE: "jarvis_last_date",
+  POINTS: "jarvis_points",
+  BADGES: "jarvis_badges",
+  THEME: "jarvis_theme",
 };
 
-let notes = JSON.parse(localStorage.getItem("notes")) || [
-  { id: 1, text: "AI project progress: model training done", tags: ["AI", "project"], date: "2025-06-15" },
-  { id: 2, text: "Meeting notes with client", tags: ["meeting"], date: "2025-06-16" }
-];
+// --- Load gamification data ---
+let streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK)) || 0;
+let lastCompletionDate = localStorage.getItem(STORAGE_KEYS.LAST_COMPLETION_DATE);
+let points = parseInt(localStorage.getItem(STORAGE_KEYS.POINTS)) || 0;
+let badges = JSON.parse(localStorage.getItem(STORAGE_KEYS.BADGES)) || [];
 
-let dailyRecommendations = [
-  "Start with tasks closest to deadline",
-  "Remember to take short breaks every hour",
-  "Review your budget weekly",
-  "Keep notes organized with tags"
-];
+// Update streak UI
+function updateGamificationUI() {
+  streakCountEl.textContent = streak;
+  pointsCountEl.textContent = points;
 
-// ----------- UI References ------------
-
-const userSpeechEl = document.getElementById("userSpeech");
-const jarvisReplyEl = document.getElementById("jarvisReply");
-const startBtn = document.getElementById("startBtn");
-const taskListEl = document.getElementById("taskList");
-const notesListEl = document.getElementById("notesList");
-const budgetSummaryEl = document.getElementById("budgetSummary");
-const dailyRecommendationEl = document.getElementById("dailyRecommendation");
-const budgetChartCtx = document.getElementById("budgetChart").getContext("2d");
-
-let recognition, isListening = false;
-let synth = window.speechSynthesis;
-
-// ----------- Functions ------------
-
-// Save all data to localStorage
-function saveAll() {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-  localStorage.setItem("budget", JSON.stringify(budget));
-  localStorage.setItem("notes", JSON.stringify(notes));
+  badgesEl.innerHTML = '';
+  badges.forEach(badge => {
+    const badgeEl = document.createElement("span");
+    badgeEl.classList.add("badge");
+    badgeEl.textContent = badge;
+    badgesEl.appendChild(badgeEl);
+  });
 }
 
-// Speak function
-function speak(text) {
-  if (synth.speaking) {
-    synth.cancel();
+// Check if today is next day after last completion to increment streak
+function checkAndUpdateStreak() {
+  const today = new Date().toDateString();
+
+  if (!lastCompletionDate) {
+    // First completion ever
+    streak = 1;
+  } else {
+    const lastDate = new Date(lastCompletionDate);
+    const diffDays = Math.floor((new Date(today) - lastDate) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      streak++;
+    } else if (diffDays > 1) {
+      streak = 1; // streak broken, reset
+    }
   }
-  const utterThis = new SpeechSynthesisUtterance(text);
-  utterThis.rate = 1.1;
-  synth.speak(utterThis);
-  jarvisReplyEl.textContent = text;
+  lastCompletionDate = today;
+  localStorage.setItem(STORAGE_KEYS.STREAK, streak);
+  localStorage.setItem(STORAGE_KEYS.LAST_COMPLETION_DATE, lastCompletionDate);
 }
 
-// Render upcoming tasks
+// Add points & check badges
+function addPoints(value) {
+  points += value;
+  localStorage.setItem(STORAGE_KEYS.POINTS, points);
+  checkBadges();
+}
+
+// Check badges earned
+function checkBadges() {
+  // Badge conditions
+  if (points >= 50 && !badges.includes("Productivity Pro")) {
+    badges.push("Productivity Pro");
+  }
+  if (streak >= 5 && !badges.includes("5-Day Streak")) {
+    badges.push("5-Day Streak");
+  }
+  if (streak >= 10 && !badges.includes("10-Day Streak")) {
+    badges.push("10-Day Streak");
+  }
+  if (tasks.every(t => t.completed) && !badges.includes("All Tasks Done")) {
+    badges.push("All Tasks Done");
+  }
+  localStorage.setItem(STORAGE_KEYS.BADGES, JSON.stringify(badges));
+}
+
+// Mark task completed (simulate)
+function completeTask(id) {
+  const task = tasks.find(t => t.id === id);
+  if (task && !task.completed) {
+    task.completed = true;
+    addPoints(10);
+    checkAndUpdateStreak();
+    renderTasks();
+    updateGamificationUI();
+  }
+}
+
+// Render tasks in UI
 function renderTasks() {
-  taskListEl.innerHTML = "";
-  let upcoming = tasks.filter(t => !t.completed).sort((a,b) => new Date(a.due) - new Date(b.due));
-  if(upcoming.length === 0) {
-    taskListEl.innerHTML = "<li>No upcoming tasks!</li>";
-    return;
-  }
-  upcoming.forEach(task => {
+  taskList.innerHTML = "";
+  tasks.forEach(task => {
     const li = document.createElement("li");
-    li.textContent = `${task.text} - Due: ${task.due} - Priority: ${task.priority}`;
-    taskListEl.appendChild(li);
+    li.textContent = `${task.text} ${task.completed ? "(Done)" : ""}`;
+    if (!task.completed) {
+      li.style.cursor = "pointer";
+      li.title = "Click to mark complete";
+      li.addEventListener("click", () => completeTask(task.id));
+    }
+    taskList.appendChild(li);
   });
 }
 
-// Render recent notes
+// Render notes in UI
 function renderNotes() {
-  notesListEl.innerHTML = "";
-  if(notes.length === 0) {
-    notesListEl.innerHTML = "<li>No recent notes</li>";
-    return;
-  }
-  // Show last 5 notes sorted by date desc
-  let sortedNotes = notes.slice().sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0,5);
-  sortedNotes.forEach(note => {
+  notesList.innerHTML = "";
+  notes.forEach(note => {
     const li = document.createElement("li");
-    li.textContent = note.text;
-    notesListEl.appendChild(li);
+    li.textContent = note;
+    notesList.appendChild(li);
   });
 }
 
-// Render budget chart & summary
-function renderBudget() {
-  let totalExpenses = budget.expenses.reduce((acc, e) => acc + e.amount, 0);
-  let remaining = budget.income - totalExpenses;
-  budgetSummaryEl.textContent = `Income: $${budget.income.toFixed(2)}, Expenses: $${totalExpenses.toFixed(2)}, Remaining: $${remaining.toFixed(2)} (Goal: $${budget.monthlyGoal})`;
+// Budget chart (simple bar chart with Canvas API)
+function renderBudgetChart() {
+  const ctx = budgetChart;
+  ctx.clearRect(0, 0, 300, 150);
 
-  // Clear canvas before redraw
-  budgetChartCtx.clearRect(0, 0, 300, 150);
+  const maxBudget = Math.max(...budgetData);
+  const barWidth = 30;
+  const gap = 10;
+  ctx.fillStyle = currentTheme === "dark" ? "#69c" : "#0078d7";
 
-  // Draw simple bar chart
-  const barWidth = 40;
-  const maxHeight = 100;
-  const startX = 40;
-  const startY = 130;
+  budgetData.forEach((value, i) => {
+    const barHeight = (value / maxBudget) * 130;
+    ctx.fillRect(i * (barWidth + gap) + 20, 140 - barHeight, barWidth, barHeight);
+  });
 
-  // Draw Income Bar
-  budgetChartCtx.fillStyle = "#4caf50";
-  let incomeHeight = (budget.income / (budget.income + totalExpenses)) * maxHeight;
-  budgetChartCtx.fillRect(startX, startY - incomeHeight, barWidth, incomeHeight);
-  budgetChartCtx.fillStyle = "#000";
-  budgetChartCtx.fillText("Income", startX, startY + 15);
-
-  // Draw Expenses Bar
-  budgetChartCtx.fillStyle = "#f44336";
-  let expenseHeight = (totalExpenses / (budget.income + totalExpenses)) * maxHeight;
-  budgetChartCtx.fillRect(startX + 80, startY - expenseHeight, barWidth, expenseHeight);
-  budgetChartCtx.fillStyle = "#000";
-  budgetChartCtx.fillText("Expenses", startX + 80, startY + 15);
+  // Axis line
+  ctx.strokeStyle = currentTheme === "dark" ? "#aaa" : "#333";
+  ctx.beginPath();
+  ctx.moveTo(15, 140);
+  ctx.lineTo(300, 140);
+  ctx.stroke();
 }
 
-// Provide a daily recommendation randomly
-function updateDailyRecommendation() {
-  let index = Math.floor(Math.random() * dailyRecommendations.length);
-  dailyRecommendationEl.textContent = dailyRecommendations[index];
-}
+// ========================
+// Voice recognition & Jarvis
+// ========================
 
-// Smart priority suggestion (simple version)
-function suggestPriority(dueDate) {
-  const today = new Date();
-  const due = new Date(dueDate);
-  const diffDays = Math.ceil((due - today) / (1000 * 3600 * 24));
-  if(diffDays <= 1) return "High";
-  if(diffDays <= 5) return "Medium";
-  return "Low";
-}
-
-// Handle commands
-function handleCommand(command) {
-  const lower = command.toLowerCase();
-
-  if(lower.includes("upcoming task")) {
-    if(tasks.length === 0) {
-      speak("You have no tasks at the moment.");
-    } else {
-      let nextTask = tasks.filter(t => !t.completed).sort((a,b) => new Date(a.due) - new Date(b.due))[0];
-      if(nextTask) {
-        speak(`Your next task is to ${nextTask.text} due on ${nextTask.due}.`);
-      } else {
-        speak("You have no upcoming tasks.");
-      }
-    }
-  }
-  else if(lower.includes("add reminder") || lower.includes("remind me to")) {
-    // Example: "Remind me to call mom on saturday"
-    let reminderText = command.match(/remind me to (.+)/i);
-    if(reminderText && reminderText[1]) {
-      let reminder = reminderText[1].trim();
-
-      // Extract date (simple parser for "on saturday" etc)
-      let dueDate = new Date();
-      // If "on <day>" exists, parse it:
-      let dayMatch = reminder.match(/on (\w+)/i);
-      if(dayMatch && dayMatch[1]) {
-        let dayName = dayMatch[1].toLowerCase();
-        const daysOfWeek = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
-        let todayIndex = dueDate.getDay();
-        let targetIndex = daysOfWeek.indexOf(dayName);
-        if(targetIndex >=0) {
-          let diff = (targetIndex - todayIndex + 7) % 7;
-          if(diff === 0) diff = 7; // next week
-          dueDate.setDate(dueDate.getDate() + diff);
-        }
-      }
-      // Remove "on <day>" from reminder text for task description
-      reminder = reminder.replace(/on \w+/i, '').trim();
-
-      // Suggest priority based on due date
-      let priority = suggestPriority(dueDate.toISOString().slice(0,10));
-
-      // Add to tasks
-      let newTask = {
-        id: Date.now(),
-        text: reminder,
-        due: dueDate.toISOString().slice(0,10),
-        priority,
-        recurring: false,
-        completed: false
-      };
-      tasks.push(newTask);
-      saveAll();
-      renderTasks();
-      speak(`Reminder added: ${newTask.text} on ${newTask.due} with priority ${newTask.priority}`);
-    } else {
-      speak("Please specify what you want me to remind you about.");
-    }
-  }
-  else if(lower.includes("what's the budget") || lower.includes("budget overview")) {
-    let totalExpenses = budget.expenses.reduce((acc, e) => acc + e.amount, 0);
-    let remaining = budget.income - totalExpenses;
-    speak(`Your income is $${budget.income.toFixed(2)}. Your expenses total $${totalExpenses.toFixed(2)}. Remaining budget is $${remaining.toFixed(2)}.`);
-  }
-  else if(lower.includes("notes") || lower.includes("recent notes")) {
-    if(notes.length === 0) {
-      speak("You have no recent notes.");
-    } else {
-      let latestNote = notes.slice().sort((a,b) => new Date(b.date) - new Date(a.date))[0];
-      speak(`Your latest note says: ${latestNote.text}`);
-    }
-  }
-  else if(lower.includes("daily recommendation")) {
-    updateDailyRecommendation();
-    speak(dailyRecommendationEl.textContent);
-  }
-  else if(lower.includes("thank you") || lower.includes("thanks")) {
-    speak("You're welcome! Let me know if you need anything else.");
-  }
-  else if(lower.includes("stop listening") || lower.includes("deactivate")) {
-    speak("Deactivating Jarvis. Talk to you later!");
-    stopRecognition();
-  }
-  else {
-    speak("Sorry, I didn't catch that. Please try again.");
-  }
-}
-
-// Initialize Speech Recognition
-function initRecognition() {
-  if(!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-    alert("Speech Recognition API not supported in this browser.");
-    startBtn.disabled = true;
-    return;
+function initSpeechRecognition() {
+  if (!("webkitSpeechRecognition" in window) && !("SpeechRecognition" in window)) {
+    alert("Sorry, your browser does not support Speech Recognition.");
+    return null;
   }
 
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  recognition = new SpeechRecognition();
+  const recognition = new SpeechRecognition();
+
   recognition.continuous = true;
   recognition.interimResults = false;
-  recognition.lang = 'en-US';
+  recognition.lang = "en-US";
 
   recognition.onstart = () => {
-    isListening = true;
-    startBtn.textContent = "Deactivate Jarvis";
-    jarvisReplyEl.textContent = "Listening for 'Hey Jarvis'...";
+    listening = true;
+    startBtn.textContent = "Listening...";
+    startBtn.disabled = true;
   };
 
   recognition.onend = () => {
-    isListening = false;
+    listening = false;
     startBtn.textContent = "Activate Jarvis";
-    jarvisReplyEl.textContent = "Jarvis stopped listening.";
+    startBtn.disabled = false;
   };
 
   recognition.onerror = (event) => {
@@ -260,50 +200,138 @@ function initRecognition() {
   };
 
   recognition.onresult = (event) => {
-    let transcript = "";
-    for(let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
-    userSpeechEl.textContent = transcript;
+    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+    userSpeech.textContent = transcript;
 
-    // Only respond if "hey jarvis" is said first
-    if(transcript.toLowerCase().includes("hey jarvis")) {
-      // Extract command after "hey jarvis"
-      let cmdIndex = transcript.toLowerCase().indexOf("hey jarvis") + 9;
-      let command = transcript.slice(cmdIndex).trim();
-      if(command.length === 0) {
-        speak("Yes? How can I assist you?");
+    // Only listen (no reply) if the command starts with "Jarvis" or "Hey Jarvis"
+    if (/^(jarvis|hey jarvis)/i.test(transcript)) {
+      // Extract command after "Jarvis" keyword
+      const command = transcript.replace(/^(jarvis|hey jarvis)/i, "").trim();
+      if (command) {
+        handleCommand(command.toLowerCase());
       } else {
-        handleCommand(command);
+        // If no command after "jarvis", don't reply, just listen
+        jarvisReply.textContent = "";
       }
+    } else {
+      // Manual mode or other speech, don't reply
+      jarvisReply.textContent = "";
     }
   };
+
+  return recognition;
 }
 
-function startRecognition() {
-  if(!recognition) {
-    initRecognition();
+function handleCommand(command) {
+  let response = "";
+
+  if (command.includes("time")) {
+    const now = new Date();
+    response = `The current time is ${now.toLocaleTimeString()}.`;
+  } else if (command.includes("date")) {
+    const today = new Date();
+    response = `Today's date is ${today.toLocaleDateString()}.`;
+  } else if (command.includes("tasks")) {
+    const incomplete = tasks.filter(t => !t.completed).map(t => t.text);
+    response = incomplete.length ? `You have ${incomplete.length} tasks pending: ${incomplete.join(", ")}` : "You have no pending tasks!";
+  } else if (command.includes("complete task")) {
+    // Example: "complete task submit budget report"
+    const match = command.match(/complete task (.+)/);
+    if (match && match[1]) {
+      const taskName = match[1].trim();
+      const task = tasks.find(t => t.text.toLowerCase() === taskName.toLowerCase());
+      if (task && !task.completed) {
+        completeTask(task.id);
+        response = `Marked "${task.text}" as completed. Good job!`;
+      } else if (task && task.completed) {
+        response = `"${task.text}" is already completed.`;
+      } else {
+        response = `Task "${taskName}" not found.`;
+      }
+    } else {
+      response = "Please specify the task name to complete.";
+    }
+  } else if (command.includes("theme")) {
+    // Command example: "theme dark"
+    if (command.includes("dark")) {
+      setTheme("dark");
+      response = "Dark theme activated.";
+    } else if (command.includes("light")) {
+      setTheme("light");
+      response = "Light theme activated.";
+    } else if (command.includes("vibrant")) {
+      setTheme("vibrant");
+      response = "Vibrant theme activated.";
+    } else {
+      response = "Please specify a valid theme: light, dark, or vibrant.";
+    }
+  } else if (command.includes("points")) {
+    response = `You have ${points} points. Keep going!`;
+  } else if (command.includes("streak")) {
+    response = `Your current streak is ${streak} day${streak === 1 ? "" : "s"}.`;
+  } else {
+    response = "Sorry, I didn't understand that command.";
   }
-  recognition.start();
+
+  jarvisReply.textContent = response;
 }
 
-function stopRecognition() {
-  if(recognition && isListening) {
-    recognition.stop();
+// Manual input support (optional)
+// You can add a textbox + button for manual commands if you want
+
+// =================
+// Theme management
+// =================
+
+function setTheme(theme) {
+  document.body.classList.remove("light", "dark", "vibrant");
+  document.body.classList.add(theme);
+  currentTheme = theme;
+  localStorage.setItem(STORAGE_KEYS.THEME, theme);
+  renderBudgetChart();
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME);
+  if (savedTheme) {
+    setTheme(savedTheme);
+    themeSelect.value = savedTheme;
+  } else {
+    setTheme("light");
   }
 }
 
-// ----------- Initialization ------------
+// =================
+// Initialization
+// =================
 
 startBtn.addEventListener("click", () => {
-  if(isListening) {
-    stopRecognition();
+  if (!recognition) {
+    recognition = initSpeechRecognition();
+  }
+  if (!listening) {
+    recognition.start();
   } else {
-    startRecognition();
+    recognition.stop();
   }
 });
 
+themeSelect.addEventListener("change", (e) => {
+  setTheme(e.target.value);
+});
+
+// On load
 renderTasks();
 renderNotes();
-renderBudget();
-updateDailyRecommendation();
+updateGamificationUI();
+loadTheme();
+renderBudgetChart();
+Hey! Looks like you shared a full-featured "Jarvis"-style personal assistant web app code with tasks, notes, gamification (points, streaks, badges), voice recognition, and theme switching. Super cool!
+
+What do you want me to do with this?  
+- Help debug or improve?  
+- Add new features?  
+- Explain parts of the code?  
+- Help you customize the assistant responses or commands?  
+
+Just let me know!
