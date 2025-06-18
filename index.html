@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jarvis Voice Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -39,24 +40,20 @@
       <div class="card upcoming-tasks">
         <h4>Upcoming Tasks</h4>
         <ul id="taskList">
-          <li>Submit budget report</li>
-        </ul>
+          </ul>
       </div>
       <div class="card budget-overview">
         <h4>Budget Overview</h4>
-        <p id="budgetOverview">60% used this month</p>
-        <canvas id="budgetChart" width="300" height="150"></canvas>
+        <p id="budgetOverview">Loading budget data...</p> <canvas id="budgetChart" width="300" height="150"></canvas>
       </div>
       <div class="card recent-notes">
         <h4>Recent Notes</h4>
         <ul id="notesList">
-          <li>AI project progress</li>
-        </ul>
+          </ul>
       </div>
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
-        <p>Start with tasks closest to deadline</p>
-      </div>
+        <p id="dailyRecommendation">Loading recommendation...</p> </div>
     </section>
 
     <section class="gamification">
@@ -64,8 +61,7 @@
       <p>Streak: <span id="streakCount">0</span> days</p>
       <p>Points: <span id="pointsCount">0</span></p>
       <div id="badges" class="badges">
-        <!-- badges will be shown here -->
-      </div>
+        </div>
     </section>
   </main>
 
