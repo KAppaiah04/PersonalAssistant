@@ -11,6 +11,7 @@
   --primary-color-dark: #e50914; /* Netflix Red */
   --accent-color-dark: #b80d0d; /* Darker Red for emphasis */
   --border-color-dark: #333; /* Subtle borders */
+  --primary-color-dark-rgb: 229, 9, 20; /* For shadows */
 
   /* Color Palette - Light Theme */
   --color-bg-light: #f5f5f5;
@@ -19,6 +20,7 @@
   --primary-color-light: #007bff; /* Standard Blue */
   --accent-color-light: #28a745; /* Green for positive actions */
   --border-color-light: #ddd;
+  --primary-color-light-rgb: 0, 123, 255;
 
   /* Color Palette - Vibrant Theme */
   --color-bg-vibrant: #ffe0b2; /* Warm Peach */
@@ -27,6 +29,7 @@
   --primary-color-vibrant: #ff5722; /* Deep Orange */
   --accent-color-vibrant: #673ab7; /* Medium Purple */
   --border-color-vibrant: #e0e0e0;
+  --primary-color-vibrant-rgb: 255, 87, 34;
 
   /* Global variables (default to dark theme values) */
   --font-family-primary: 'Inter', sans-serif;
@@ -41,6 +44,7 @@
   --primary-color: var(--primary-color-dark);
   --accent-color: var(--accent-color-dark);
   --border-color: var(--border-color-dark);
+  --primary-rgb: var(--primary-color-dark-rgb);
 }
 
 /* Theme-specific overrides */
@@ -51,6 +55,7 @@ body.light {
   --primary-color: var(--primary-color-light);
   --accent-color: var(--accent-color-light);
   --border-color: var(--border-color-light);
+  --primary-rgb: var(--primary-color-light-rgb);
 }
 
 body.vibrant {
@@ -60,6 +65,7 @@ body.vibrant {
   --primary-color: var(--primary-color-vibrant);
   --accent-color: var(--accent-color-vibrant);
   --border-color: var(--border-color-vibrant);
+  --primary-rgb: var(--primary-color-vibrant-rgb);
 }
 
 /* --- Base Styles --- */
@@ -145,7 +151,8 @@ header h1 {
   font-family: var(--font-family-primary);
   cursor: pointer;
   appearance: none; /* Remove default select arrow */
-  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e5e5e5%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E'); /* Custom arrow */
+  /* Custom arrow for select - inverted for dark, default for light */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23e5e5e5%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E');
   background-repeat: no-repeat;
   background-position: right 0.7em top 50%;
   background-size: 0.65em auto;
@@ -158,6 +165,7 @@ body.light .theme-switcher select {
 body.vibrant .theme-switcher select {
   background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%234a148c%22%20d%3D%22M287%2069.9L146.2%20209.5%205.4%2069.9c-1.3-1.3-3.1-2-4.9-2s-3.6.7-4.9%202c-2.6%202.6-2.6%206.9%200%209.5l141.5%20141.5c1.3%201.3%203.1%202%204.9%202s3.6-.7%204.9-2L287%2079.4c2.6-2.6%202.6-6.9%200-9.5z%22%2F%3E%3C%2Fsvg%3E');
 }
+
 
 /* --- Buttons --- */
 button {
@@ -352,13 +360,13 @@ section h2 {
 }
 
 .entry-section input::placeholder {
-  color: rgba(var(--color-text-dark), 0.7); /* Adjust based on theme for contrast */
+  color: rgba(229, 229, 229, 0.7); /* For dark theme */
 }
 body.light .entry-section input::placeholder {
-  color: rgba(var(--color-text-light), 0.7);
+  color: rgba(51, 51, 51, 0.7); /* For light theme */
 }
 body.vibrant .entry-section input::placeholder {
-  color: rgba(var(--color-text-vibrant), 0.7);
+  color: rgba(74, 20, 140, 0.7); /* For vibrant theme */
 }
 
 
@@ -367,7 +375,7 @@ body.vibrant .entry-section input::placeholder {
 .edit-input:focus, .edit-textarea:focus {
   border-color: var(--primary-color);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--primary-color-dark-rgb), 0.3);
+  box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.3);
 }
 
 .input-label {
@@ -375,6 +383,12 @@ body.vibrant .entry-section input::placeholder {
   color: var(--color-text);
   margin-top: 0.5rem;
 }
+
+.entry-section button {
+    margin-top: 1rem;
+    width: 100%;
+}
+
 
 /* Dashboard Cards */
 .dashboard {
@@ -416,6 +430,7 @@ body.vibrant .entry-section input::placeholder {
   padding: 0.7rem 1rem;
   margin-bottom: 0.7rem;
   display: flex;
+  flex-wrap: wrap; /* Allow content and buttons to wrap */
   align-items: center;
   justify-content: space-between;
   font-size: 0.95rem;
@@ -424,17 +439,25 @@ body.vibrant .entry-section input::placeholder {
 
 .card ul li:hover {
   background-color: rgba(0, 0, 0, 0.2);
-  transform: translateX(5px); /* Slight hover effect */
+  /* transform: translateX(5px); Removed to not interfere with edit controls */
 }
 
 .card ul li:last-child {
   margin-bottom: 0;
 }
 
+.item-content {
+    flex-grow: 1;
+    margin-right: 1rem; /* Space between content and buttons */
+    white-space: normal; /* Allow text to wrap */
+    word-break: break-word; /* Break long words */
+}
+
 .item-controls {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0; /* Prevent buttons from shrinking */
 }
 
 /* Task Specific Styles */
@@ -453,6 +476,13 @@ body.dark .completed-task {
   font-weight: 500;
 }
 
+.task-meta {
+    font-size: 0.85em;
+    color: #999;
+    margin-top: 0.3rem;
+    display: block;
+}
+
 /* Budget specific styles */
 #budgetChart {
   max-width: 100%;
@@ -468,6 +498,8 @@ body.dark .completed-task {
   font-weight: 600;
   color: var(--primary-color);
   margin-bottom: 0.8rem;
+  text-align: center;
+  font-size: 1.1rem;
 }
 
 #budgetSummary {
@@ -498,10 +530,27 @@ body.dark .completed-task {
   font-size: 0.9em;
 }
 
-.transaction-item span {
+.transaction-item .transaction-details {
     flex-grow: 1;
     margin-right: 10px;
+    display: flex;
+    flex-direction: column;
 }
+.transaction-item .transaction-details span {
+    display: block;
+}
+.transaction-item .amount {
+    font-weight: bold;
+    color: #28a745; /* Green for income */
+}
+.transaction-item.expense .amount {
+    color: var(--accent-color); /* Red for expense */
+}
+.transaction-item .date {
+    font-size: 0.8em;
+    color: #999;
+}
+
 .transaction-item .action-btn {
     padding: 0.3em 0.5em;
     font-size: 0.8em;
@@ -583,24 +632,24 @@ body.dark .completed-task {
 }
 
 
-/* --- Footer --- */
-footer {
-  text-align: center;
-  padding: 1.5rem;
-  margin-top: 3rem;
-  background-color: var(--card-bg);
-  color: var(--color-text);
-  font-size: 0.9rem;
-  border-top: 1px solid var(--border-color);
+/* --- Edit Mode Specific Styles --- */
+li.editing {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+li.editing .item-content {
+    width: 100%; /* Take full width in editing mode */
+    margin-right: 0;
 }
 
-/* --- Edit Mode Specific Styles --- */
 li .edit-input, li .edit-textarea {
   flex-grow: 1; /* Take up available space */
   margin-right: 0.5rem;
   padding: 0.5rem;
   font-size: 0.9rem;
-  background-color: rgba(var(--primary-color-dark-rgb), 0.1); /* Subtle highlight */
+  background-color: rgba(var(--primary-rgb), 0.1); /* Subtle highlight */
+  width: calc(100% - 1rem); /* Account for padding */
 }
 
 li .edit-textarea {
@@ -652,5 +701,16 @@ li .edit-cancel-btn:hover { background-color: #c82333; }
 
   .box, .card {
     padding: 1rem;
+  }
+  .manual-entry {
+      grid-template-columns: 1fr; /* Stack manual entries on small screens */
+  }
+  .data-management {
+      flex-direction: column;
+      align-items: center;
+  }
+  .data-management button {
+      width: 100%;
+      max-width: 300px;
   }
 }
