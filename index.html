@@ -4,80 +4,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis Voice Assistant</title>
+    <title>Jarvis Personal AI Assistant</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon"> 
 </head>
 
 <body>
     <header>
-        <h1>Jarvis Voice Assistant</h1>
-        <div class="theme-switcher">
-            <label for="themeSelect">Choose Theme:</label>
-            <select id="themeSelect">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-                <option value="vibrant">Vibrant</option>
-            </select>
+        <div class="header-left">
+            <img src="path/to/your/jarvis_icon.png" alt="Jarvis Icon" class="jarvis-icon"> 
+            <h1>Jarvis Personal AI Assistant</h1>
         </div>
-        <button id="startBtn" aria-label="Activate Jarvis">Activate Jarvis</button>
+        <div class="header-right">
+            <div class="theme-switcher">
+                <label for="themeSelect">Theme:</label>
+                <select id="themeSelect">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="vibrant">Vibrant</option>
+                </select>
+            </div>
+            <button id="startBtn" aria-label="Activate Jarvis Voice Assistant">
+                <span class="icon-mic"></span> Activate Jarvis
+            </button>
+        </div>
     </header>
 
     <main>
-        <section class="input-section">
-            <h2>Manual Input</h2>
-            <div class="input-group">
-                <label for="taskInput">Task:</label>
-                <input type="text" id="taskInput" placeholder="Enter task">
-                <button id="addTaskBtn">Add Task</button>
+        <section class="interaction-area">
+            <div class="card voice-interaction-card">
+                <h2>Voice Command</h2>
+                <div class="voice-display">
+                    <p id="userSpeech" class="speech-text">Say "Hey Jarvis" followed by your request...</p>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="noteInput">Note:</label>
-                <input type="text" id="noteInput" placeholder="Enter note">
-                <button id="addNoteBtn">Add Note</button>
+            <div class="card jarvis-reply-card">
+                <h2>Jarvis's Response</h2>
+                <div class="reply-display">
+                    <p id="jarvisReply" class="reply-text">Waiting for command...</p>
+                </div>
             </div>
-            <div class="input-group">
-                <label for="budgetInput">Budget:</label>
-                <input type="number" id="budgetInput" placeholder="Enter budget">
-                <button id="addBudgetBtn">Add Budget</button>
+
+            <div class="card manual-input-card">
+                <h2>Manual Quick Entry</h2>
+                <div class="input-group">
+                    <label for="taskInput">New Task:</label>
+                    <input type="text" id="taskInput" placeholder="e.g., Call John by 3 PM">
+                    <button id="addTaskBtn">Add Task</button>
+                </div>
+                <div class="input-group">
+                    <label for="noteInput">New Note:</label>
+                    <input type="text" id="noteInput" placeholder="e.g., Ideas for Q3 project">
+                    <button id="addNoteBtn">Add Note</button>
+                </div>
+                <div class="input-group">
+                    <label for="budgetInput">Record Transaction:</label>
+                    <input type="number" id="budgetInput" placeholder="e.g., 50 (for $50 spent)">
+                    <button id="addBudgetBtn">Add Budget Item</button>
+                </div>
             </div>
         </section>
 
-        <section class="assistant-section">
-            <div class="box">
-                <h2>Your Speech</h2>
-                <p id="userSpeech">Say "Hey Jarvis" followed by a command...</p>
+        <section class="dashboard-area">
+            <div class="card tasks-card">
+                <h2>Your Tasks</h2>
+                <ul id="taskList" class="data-list">
+                    </ul>
+                <p class="empty-state" id="noTasksMessage">No tasks added yet. Let's get productive!</p>
             </div>
-            <div class="box">
-                <h2>Jarvis Reply</h2>
-                <p id="jarvisReply"></p>
+
+            <div class="card notes-card">
+                <h2>Your Notes</h2>
+                <ul id="notesList" class="data-list">
+                    </ul>
+                <p class="empty-state" id="noNotesMessage">No notes here. Jot down your thoughts!</p>
+            </div>
+
+            <div class="card budget-card">
+                <h2>Budget Visuals</h2>
+                <canvas id="budgetChart"></canvas>
+                <p class="budget-summary" id="budgetSummaryText">Overall spending trends.</p>
             </div>
         </section>
 
-        <section class="data-section">
-            <div class="box">
-                <h2>Tasks</h2>
-                <ul id="taskList"></ul>
+        <section class="achievements-area">
+            <div class="card achievements-summary-card">
+                <h2>Productivity Stats</h2>
+                <p class="stat-item">Streak: <span id="streakCount" class="stat-value">0</span> days</p>
+                <p class="stat-item">Points: <span id="pointsCount" class="stat-value">0</span></p>
             </div>
-            <div class="box">
-                <h2>Notes</h2>
-                <ul id="notesList"></ul>
-            </div>
-            <div class="box">
-                <h2>Budget Overview</h2>
-                <p id="budgetOverview"></p>
-                <canvas id="budgetChart" width="300" height="150"></canvas>
-            </div>
-        </section>
-
-        <section class="gamification-section">
-            <div class="box">
-                <h2>Gamification</h2>
-                <p>Streak: <span id="streakCount">0</span></p>
-                <p>Points: <span id="pointsCount">0</span></p>
-                <p>Badges: <span id="badges"></span></p>
+            <div class="card badges-card">
+                <h2>Badges Earned</h2>
+                <div id="badges" class="badges-container">
+                    </div>
+                <p class="empty-state" id="noBadgesMessage">No badges yet. Keep achieving!</p>
             </div>
         </section>
     </main>
+
+    <footer>
+        <p>&copy; 2025 Jarvis Personal AI Assistant. All rights reserved.</p>
+    </footer>
 
     <script src="app.js"></script>
 </body>
