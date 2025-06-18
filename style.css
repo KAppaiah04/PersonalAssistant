@@ -226,7 +226,8 @@ body.vibrant .card {
 
 /* Task and Note Lists */
 #taskList,
-#notesList {
+#notesList,
+#expensesList { /* Added expensesList here */
   list-style-type: none; /* Remove default bullets */
   padding: 0;
   margin: 0;
@@ -238,36 +239,42 @@ body.vibrant .card {
 
 /* Custom scrollbar for Webkit browsers */
 #taskList::-webkit-scrollbar,
-#notesList::-webkit-scrollbar {
+#notesList::-webkit-scrollbar,
+#expensesList::-webkit-scrollbar { /* Added expensesList here */
   width: 8px;
 }
 
 #taskList::-webkit-scrollbar-track,
-#notesList::-webkit-scrollbar-track {
+#notesList::-webkit-scrollbar-track,
+#expensesList::-webkit-scrollbar-track { /* Added expensesList here */
   background: var(--card-bg-light);
   border-radius: 10px;
 }
 
 body.dark #taskList::-webkit-scrollbar-track,
-body.dark #notesList::-webkit-scrollbar-track {
+body.dark #notesList::-webkit-scrollbar-track,
+body.dark #expensesList::-webkit-scrollbar-track { /* Added expensesList here */
   background: var(--card-bg-dark);
 }
 
 #taskList::-webkit-scrollbar-thumb,
-#notesList::-webkit-scrollbar-thumb {
+#notesList::-webkit-scrollbar-thumb,
+#expensesList::-webkit-scrollbar-thumb { /* Added expensesList here */
   background-color: var(--primary-color);
   border-radius: 10px;
   border: 2px solid var(--card-bg-light);
 }
 
 body.dark #taskList::-webkit-scrollbar-thumb,
-body.dark #notesList::-webkit-scrollbar-thumb {
+body.dark #notesList::-webkit-scrollbar-thumb,
+body.dark #expensesList::-webkit-scrollbar-thumb { /* Added expensesList here */
   border: 2px solid var(--card-bg-dark);
 }
 
 
 #taskList li,
-#notesList li {
+#notesList li,
+#expensesList li { /* Added expensesList here */
   background-color: rgba(0, 120, 215, 0.05); /* Light background for items */
   padding: 0.7rem 1rem; /* Adjusted padding */
   margin-bottom: 0.6rem; /* Spacing between list items */
@@ -280,13 +287,15 @@ body.dark #notesList::-webkit-scrollbar-thumb {
 }
 
 body.dark #taskList li,
-body.dark #notesList li {
+body.dark #notesList li,
+body.dark #expensesList li { /* Added expensesList here */
   background-color: rgba(58, 134, 255, 0.1);
   border: 1px solid var(--border-color-dark);
 }
 
 #taskList li span,
-#notesList li span {
+#notesList li span,
+#expensesList li span { /* Added expensesList here */
   flex-grow: 1;
   cursor: pointer;
 }
@@ -337,8 +346,31 @@ body.dark .due-date {
   margin-top: 1rem;
 }
 
-/* Form Input Styles (for new task/note) */
+.budget-overview #totalExpensesDisplay {
+    font-size: 1.15rem;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 1.5rem; /* Space below chart */
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.budget-overview .expenses-list-container {
+    max-height: 150px; /* Max height for recent expenses list */
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color-light);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+body.dark .budget-overview .expenses-list-container {
+    border-top: 1px solid var(--border-color-dark);
+}
+
+
+/* Form Input Styles (for new task/note/expense) */
 .card input[type="text"],
+.card input[type="number"], /* Added input number */
 .card textarea {
   width: 100%;
   padding: 10px 12px; /* Increased padding */
@@ -352,6 +384,7 @@ body.dark .due-date {
 }
 
 body.dark .card input[type="text"],
+body.dark .card input[type="number"],
 body.dark .card textarea {
   border-color: var(--border-color-dark);
   background-color: #2a2a2a; /* Darker input background */
@@ -359,11 +392,13 @@ body.dark .card textarea {
 }
 
 .card input[type="text"]::placeholder,
+.card input[type="number"]::placeholder,
 .card textarea::placeholder {
   color: #999;
 }
 
 body.dark .card input[type="text"]::placeholder,
+body.dark .card input[type="number"]::placeholder,
 body.dark .card textarea::placeholder {
   color: #777;
 }
@@ -379,6 +414,7 @@ body.dark .card textarea::placeholder {
   cursor: pointer;
   transition: background-color 0.2s ease;
   align-self: flex-start; /* Align button to start of card */
+  margin-bottom: 0.5rem; /* Space between buttons if multiple */
 }
 
 .card button:hover {

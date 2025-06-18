@@ -8,22 +8,34 @@ const jarvisReply = document.getElementById("jarvisReply");
 const taskList = document.getElementById("taskList");
 const notesList = document.getElementById("notesList");
 const budgetOverview = document.getElementById("budgetOverview");
-const budgetChart = document.getElementById("budgetChart").getContext("2d");
+const budgetChartCanvas = document.getElementById("budgetChart"); // Get the canvas element
+const budgetChartContext = budgetChartCanvas ? budgetChartCanvas.getContext("2d") : null; // Get context safely
 const streakCountEl = document.getElementById("streakCount");
 const pointsCountEl = document.getElementById("pointsCount");
 const badgesEl = document.getElementById("badges");
 const themeSelect = document.getElementById("themeSelect");
 
-// New elements for adding tasks/notes
+// New elements for adding tasks/notes/expenses
 const newTaskInput = document.getElementById("newTaskInput");
 const newTaskDueDate = document.getElementById("newTaskDueDate");
 const addTaskBtn = document.getElementById("addTaskBtn");
 const newNoteInput = document.getElementById("newNoteInput");
 const addNoteBtn = document.getElementById("addNoteBtn");
+const newExpenseAmountInput = document.getElementById("newExpenseAmountInput");
+const newExpenseDescInput = document.getElementById("newExpenseDescInput");
+const addExpenseBtn = document.getElementById("addExpenseBtn");
+const expensesList = document.getElementById("expensesList"); // New element for expense list
+const totalExpensesDisplay = document.getElementById("totalExpensesDisplay"); // New element for total expenses
+
+// Elements for export/import
+const exportExpensesCsvBtn = document.getElementById("exportExpensesCsvBtn");
+const importCsvFile = document.getElementById("importCsvFile");
+const importCsvBtn = document.getElementById("importCsvBtn");
 
 let recognition;
 let listening = false;
 let currentTheme = 'light';
+let myBudgetChart; // Declare chart instance globally
 
 // --- Storage Keys ---
 const STORAGE_KEYS = {
@@ -32,8 +44,9 @@ const STORAGE_KEYS = {
   POINTS: "jarvis_points",
   BADGES: "jarvis_badges",
   THEME: "jarvis_theme",
-  TASKS: "jarvis_tasks", // Added for task persistence
-  NOTES: "jarvis_notes", // Added for note persistence
+  TASKS: "jarvis_tasks",
+  NOTES: "jarvis_notes",
+  EXPENSES: "jarvis_expenses", // Added for expense persistence
 };
 
 // --- Initial Data (load from localStorage or use defaults) ---
@@ -48,7 +61,11 @@ let notes = JSON.parse(localStorage.getItem(STORAGE_KEYS.NOTES)) || [
   "Meeting notes from 17th June",
 ];
 
-const budgetData = [1000, 800, 600, 400, 200, 100]; // sample monthly spending data for chart
+// Expense data structure: [{id: 1, amount: 50, description: "Groceries", date: "2025-06-18"}]
+let expenses = JSON.parse(localStorage.getItem(STORAGE_KEYS.EXPENSES)) || [
+  { id: 1, amount: 150, description: "Groceries", date: "2025-06-10" },
+  { id: 2, amount: 50, description: "Coffee", date: "2025-06-15" },
+];
 
 // --- Gamification state saved in localStorage ---
 let streak = parseInt(localStorage.getItem(STORAGE_KEYS.STREAK) || '0', 10);
@@ -57,7 +74,7 @@ let points = parseInt(localStorage.getItem(STORAGE_KEYS.POINTS) || '0', 10);
 let badges = JSON.parse(localStorage.getItem(STORAGE_KEYS.BADGES) || '[]');
 
 // =================
-// Helper Functions
+// Helper Functions for Storage
 // =================
 
 function saveTasks() {
@@ -68,12 +85,16 @@ function saveNotes() {
   localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(notes));
 }
 
+function saveExpenses() {
+  localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(expenses));
+}
+
 // =================
 // Task Management
 // =================
 
 function renderTasks() {
-  if (!taskList) return; // Ensure taskList element exists
+  if (!taskList) return;
   taskList.innerHTML = '';
   tasks.forEach(task => {
     const li = document.createElement('li');
@@ -94,10 +115,10 @@ function addTask(text, dueDate) {
   }
   const newId = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
   tasks.push({ id: newId, text: text.trim(), completed: false, dueDate: dueDate });
-  saveTasks(); // Save after adding
+  saveTasks();
   renderTasks();
   jarvisReply.textContent = `Task "${text}" added.`;
-  addPoints(5); // Award points for adding a task
+  addPoints(5);
   updateGamificationUI();
 }
 
@@ -107,7 +128,7 @@ function completeTask(id) {
     task.completed = true;
     addPoints(10);
     checkAndUpdateStreak();
-    saveTasks(); // Save after completing
+    saveTasks();
     renderTasks();
     updateGamificationUI();
     jarvisReply.textContent = `Task "${task.text}" completed. Good job!`;
@@ -116,7 +137,7 @@ function completeTask(id) {
 
 function deleteTask(id) {
   tasks = tasks.filter(t => t.id !== id);
-  saveTasks(); // Save after deleting
+  saveTasks();
   renderTasks();
   jarvisReply.textContent = "Task deleted.";
 }
@@ -126,7 +147,7 @@ function deleteTask(id) {
 // =================
 
 function renderNotes() {
-  if (!notesList) return; // Ensure notesList element exists
+  if (!notesList) return;
   notesList.innerHTML = '';
   notes.forEach((note, index) => {
     const li = document.createElement('li');
@@ -144,7 +165,7 @@ function addNote(text) {
     return;
   }
   notes.push(text.trim());
-  saveNotes(); // Save after adding
+  saveNotes();
   renderNotes();
   jarvisReply.textContent = `Note "${text.substring(0, 30)}..." added.`;
 }
@@ -152,67 +173,263 @@ function addNote(text) {
 function deleteNote(index) {
   if (index > -1 && index < notes.length) {
     notes.splice(index, 1);
-    saveNotes(); // Save after deleting
+    saveNotes();
     renderNotes();
     jarvisReply.textContent = "Note deleted.";
   }
 }
 
 // =================
-// Budget Overview
+// Expense Tracking
 // =================
 
-function renderBudgetChart() {
-  // Simple Bar Chart using Chart.js
-  if (window.myBudgetChart) {
-    window.myBudgetChart.destroy(); // Destroy old chart instance if it exists
+function renderExpenses() {
+  if (!expensesList || !totalExpensesDisplay) return;
+  expensesList.innerHTML = '';
+  let total = 0;
+  expenses.forEach(expense => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>$${expense.amount.toFixed(2)} - ${expense.description} (${expense.date})</span>
+      <button class="delete-btn" onclick="deleteExpense(${expense.id})">x</button>
+    `;
+    expensesList.appendChild(li);
+    total += expense.amount;
+  });
+  totalExpensesDisplay.textContent = `Total: $${total.toFixed(2)}`;
+  updateBudgetChartWithExpenses(total); // Update chart based on total expenses
+}
+
+function addExpense(amount, description) {
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    jarvisReply.textContent = "Please enter a valid positive amount for the expense.";
+    return;
   }
-  window.myBudgetChart = new Chart(budgetChart, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // Example labels
-      datasets: [{
-        label: 'Monthly Spending',
-        data: budgetData,
-        backgroundColor: currentTheme === 'dark' ? '#3a86ff' : 'var(--primary-color)',
-        borderColor: currentTheme === 'dark' ? '#3a86ff' : 'var(--primary-color)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: {
-            color: currentTheme === 'dark' ? '#333' : '#eee' // Adjust grid color
-          },
-          ticks: {
-            color: currentTheme === 'dark' ? '#eee' : '#222' // Adjust tick color
-          }
-        },
-        x: {
-          grid: {
-            color: currentTheme === 'dark' ? '#333' : '#eee' // Adjust grid color
-          },
-          ticks: {
-            color: currentTheme === 'dark' ? '#eee' : '#222' // Adjust tick color
-          }
-        }
+  if (description.trim() === "") {
+    jarvisReply.textContent = "Please enter a description for the expense.";
+    return;
+  }
+  const newId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) + 1 : 1;
+  const today = new Date().toISOString().slice(0, 10);
+  expenses.push({ id: newId, amount: parsedAmount, description: description.trim(), date: today });
+  saveExpenses();
+  renderExpenses();
+  jarvisReply.textContent = `Expense of $${parsedAmount.toFixed(2)} for "${description}" added.`;
+  addPoints(3); // Award points for tracking expenses
+  updateGamificationUI();
+}
+
+function deleteExpense(id) {
+  expenses = expenses.filter(e => e.id !== id);
+  saveExpenses();
+  renderExpenses();
+  jarvisReply.textContent = "Expense deleted.";
+}
+
+// =================
+// Budget Overview & Chart
+// =================
+
+function updateBudgetChartWithExpenses(totalCurrentExpenses) {
+  if (!budgetChartContext) return;
+
+  // For a simple overview, let's just show current total vs a hypothetical budget
+  const hypotheticalBudget = 1500; // Example monthly budget
+  const dataForChart = [totalCurrentExpenses, Math.max(0, hypotheticalBudget - totalCurrentExpenses)]; // Ensure remaining is not negative
+  const labelsForChart = ['Spent', 'Remaining'];
+  const backgroundColors = [
+    totalCurrentExpenses > hypotheticalBudget ? '#ff5c57' : '#0078d7', // Red if over, blue if under
+    currentTheme === 'dark' ? '#3a86ff' : '#a0a0a0'
+  ];
+
+  if (myBudgetChart) {
+    myBudgetChart.data.datasets[0].data = dataForChart;
+    myBudgetChart.data.datasets[0].backgroundColor = backgroundColors;
+    myBudgetChart.data.labels = labelsForChart;
+    myBudgetChart.update();
+  } else {
+    myBudgetChart = new Chart(budgetChartContext, {
+      type: 'pie', // Pie chart for simple spent/remaining view
+      data: {
+        labels: labelsForChart,
+        datasets: [{
+          label: 'Budget Overview',
+          data: dataForChart,
+          backgroundColor: backgroundColors,
+          borderColor: currentTheme === 'dark' ? '#121212' : '#fff', // Border color to match background
+          borderWidth: 2
+        }]
       },
-      plugins: {
-        legend: {
-          labels: {
-            color: currentTheme === 'dark' ? '#eee' : '#222' // Adjust legend text color
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+              color: currentTheme === 'dark' ? '#eee' : '#222',
+              font: {
+                size: 14 // Larger legend font
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.label || '';
+                if (label) {
+                    label += ': ';
+                }
+                if (context.parsed !== null) {
+                    label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed);
+                }
+                return label;
+              }
+            },
+            bodyFont: {
+                size: 14 // Larger tooltip font
+            },
+            titleFont: {
+                size: 16
+            }
           }
         }
       }
-    }
-  });
-  // This is a static overview, you'd need more logic for dynamic calculation
-  budgetOverview.textContent = `Current spending trend based on last 6 months.`;
+    });
+  }
+  budgetOverview.textContent = `You have spent $${totalCurrentExpenses.toFixed(2)} out of $${hypotheticalBudget.toFixed(2)} this month.`;
 }
+
+// =======================
+// Data Export Functionality (CSV)
+// =======================
+
+function exportExpensesToCsv() {
+    if (expenses.length === 0) {
+        jarvisReply.textContent = "No expenses to export!";
+        return;
+    }
+
+    // CSV Header
+    const headers = ["ID", "Amount", "Description", "Date"];
+    const csvRows = [];
+    csvRows.push(headers.join(",")); // Add header row
+
+    // CSV Data Rows
+    expenses.forEach(expense => {
+        const row = [
+            expense.id,
+            expense.amount.toFixed(2), // Format amount to 2 decimal places
+            `"${expense.description.replace(/"/g, '""')}"`, // Handle commas and quotes in description
+            expense.date
+        ];
+        csvRows.push(row.join(","));
+    });
+
+    const csvString = csvRows.join("\n");
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    const date = new Date().toISOString().slice(0, 10);
+    a.download = `jarvis_expenses_${date}.csv`; // Filename for download
+    document.body.appendChild(a); // Append for Firefox compatibility
+    a.click(); // Programmatically click the link to trigger download
+    document.body.removeChild(a); // Clean up
+    URL.revokeObjectURL(url); // Release the object URL
+
+    jarvisReply.textContent = "Expenses exported to CSV!";
+}
+
+// =======================
+// Data Import Functionality (Conceptual for CSV)
+// =======================
+
+function importCsvData(event) {
+    const file = event.target.files[0];
+    if (!file) {
+        jarvisReply.textContent = "No file selected for import.";
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+        const csvContent = e.target.result;
+        try {
+            const parsedData = parseCsvToExpenses(csvContent);
+            if (parsedData.length > 0) {
+                // Option: Overwrite existing expenses with new data
+                expenses = parsedData;
+                jarvisReply.textContent = `Successfully imported ${parsedData.length} expenses (overwriting existing).`;
+
+                // If you want to append instead of overwrite, you'd need to manage IDs to prevent duplicates
+                // Example for appending with new IDs:
+                // const currentMaxId = expenses.length > 0 ? Math.max(...expenses.map(e => e.id)) : 0;
+                // parsedData.forEach((item, index) => {
+                //     item.id = currentMaxId + index + 1; // Assign new unique IDs
+                //     expenses.push(item);
+                // });
+                // jarvisReply.textContent = `Successfully imported ${parsedData.length} expenses (appended).`;
+
+            } else {
+                jarvisReply.textContent = "No valid expense data found in the CSV.";
+            }
+            saveExpenses();
+            renderExpenses();
+        } catch (error) {
+            jarvisReply.textContent = `Error importing CSV: ${error.message}`;
+            console.error("CSV import error:", error);
+        }
+    };
+
+    reader.onerror = () => {
+        jarvisReply.textContent = "Failed to read file.";
+    };
+
+    reader.readAsText(file);
+}
+
+// Simple CSV parser for expenses (assumes specific header order: ID, Amount, Description, Date)
+function parseCsvToExpenses(csvString) {
+    const lines = csvString.trim().split('\n');
+    if (lines.length <= 1) return []; // No data or only header
+
+    // Assuming fixed header order for simplicity
+    const headers = ["id", "amount", "description", "date"];
+    const dataRows = lines.slice(1);
+    const newExpenses = [];
+
+    dataRows.forEach(row => {
+        const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // More robust split for CSV (handles commas in quotes)
+        if (values.length === headers.length) {
+            const expense = {};
+            headers.forEach((header, index) => {
+                let value = values[index].trim();
+                // Remove surrounding quotes if present
+                if (value.startsWith('"') && value.endsWith('"')) {
+                    value = value.substring(1, value.length - 1).replace(/""/g, '"'); // Unescape double quotes
+                }
+
+                if (header === "amount") {
+                    expense[header] = parseFloat(value);
+                } else if (header === "id") {
+                    expense[header] = parseInt(value, 10);
+                } else {
+                    expense[header] = value;
+                }
+            });
+            // Basic validation
+            if (!isNaN(expense.amount) && expense.amount > 0 && expense.description) {
+                newExpenses.push(expense);
+            }
+        }
+    });
+    return newExpenses;
+}
+
 
 // =================
 // Gamification
@@ -224,9 +441,8 @@ function addPoints(amount) {
 }
 
 function checkAndUpdateStreak() {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = new Date().toISOString().slice(0, 10);
   if (lastCompletionDate === today) {
-    // Task completed multiple times today, streak doesn't increase
     return;
   }
 
@@ -238,7 +454,6 @@ function checkAndUpdateStreak() {
     streak += 1;
     jarvisReply.textContent = `Streak! You're on a ${streak}-day streak!`;
   } else {
-    // If not yesterday and not today, reset streak
     streak = 1;
     jarvisReply.textContent = `New streak started!`;
   }
@@ -256,7 +471,6 @@ function checkBadges() {
     badges.push("7-Day Master");
     jarvisReply.textContent = "New Badge Unlocked: 7-Day Master!";
   }
-  // Add more badge conditions here
   localStorage.setItem(STORAGE_KEYS.BADGES, JSON.stringify(badges));
 }
 
@@ -287,7 +501,7 @@ function initSpeechRecognition() {
   }
 
   const recognitionInstance = new SpeechRecognition();
-  recognitionInstance.continuous = false; // Listen for a single utterance
+  recognitionInstance.continuous = false;
   recognitionInstance.lang = 'en-US';
   recognitionInstance.interimResults = false;
   recognitionInstance.maxAlternatives = 1;
@@ -327,7 +541,7 @@ function handleCommand(command) {
 
   if (command.includes("hey jarvis") || command.includes("hi jarvis")) {
     if (command.includes("what can you do")) {
-      response = "I can help you manage tasks, take notes, provide budget overview, and track your productivity.";
+      response = "I can help you manage tasks, take notes, track expenses, and track your productivity.";
     } else if (command.includes("list my tasks")) {
       if (tasks.length > 0) {
         response = "Your tasks are: " + tasks.filter(t => !t.completed).map(t => t.text).join(", ") + ".";
@@ -338,8 +552,8 @@ function handleCommand(command) {
       const taskText = command.replace("hey jarvis complete task", "").trim();
       const taskToComplete = tasks.find(t => t.text.toLowerCase().includes(taskText) && !t.completed);
       if (taskToComplete) {
-        completeTask(taskToComplete.id); // This already updates UI and saves
-        return; // Exit to prevent generic response
+        completeTask(taskToComplete.id);
+        return;
       } else {
         response = "I couldn't find that task or it's already completed.";
       }
@@ -349,43 +563,52 @@ function handleCommand(command) {
       } else {
         response = "You have no notes.";
       }
-    } else if (command.includes("check my budget")) {
-      response = "Your budget overview shows a spending trend over the last six months.";
-    } else if (command.includes("how am i doing")) {
-      response = `You have ${points} points and a ${streak}-day streak. Keep up the good work!`;
+    } else if (command.includes("check my expenses") || command.includes("what are my expenses")) {
+        if (expenses.length > 0) {
+            const total = expenses.reduce((sum, e) => sum + e.amount, 0);
+            response = `You have recorded expenses totaling $${total.toFixed(2)}. Your recent expenses include: ${expenses.slice(-3).map(e => `${e.description} for $${e.amount.toFixed(2)}`).join(", ")}.`;
+        } else {
+            response = "You have no recorded expenses.";
+        }
     } else if (command.includes("add task")) {
-      // Example: "hey jarvis add task buy groceries due tomorrow"
-      // More robust parsing for due dates would be needed
       const taskMatch = command.match(/add task (.+?)(?: due (.+))?$/);
       if (taskMatch && taskMatch[1]) {
         const taskText = taskMatch[1].trim();
-        const dueDate = taskMatch[2] ? taskMatch[2].trim() : ''; // Basic due date capture
+        const dueDate = taskMatch[2] ? taskMatch[2].trim() : '';
         addTask(taskText, dueDate);
-        return; // Exit to prevent generic response
+        return;
       } else {
         response = "Please specify the task to add, for example: 'add task buy groceries'.";
       }
     } else if (command.includes("add note")) {
-      // Example: "hey jarvis add note remember to call mom"
       const noteMatch = command.match(/add note (.+)/);
       if (noteMatch && noteMatch[1]) {
         const noteText = noteMatch[1].trim();
         addNote(noteText);
-        return; // Exit to prevent generic response
+        return;
       } else {
         response = "Please specify the note to add, for example: 'add note remember to call mom'.";
       }
+    } else if (command.includes("add expense")) {
+        const expenseMatch = command.match(/add expense (\d+\.?\d*)\s+for\s+(.+)/);
+        if (expenseMatch && expenseMatch[1] && expenseMatch[2]) {
+            const amount = parseFloat(expenseMatch[1]);
+            const description = expenseMatch[2].trim();
+            addExpense(amount, description);
+            return;
+        } else {
+            response = "Please specify the expense amount and description, for example: 'add expense 30 for lunch'.";
+        }
     }
-    else {
+    else if (command.includes("how am i doing")) {
+      response = `You have ${points} points and a ${streak}-day streak. Keep up the good work!`;
+    } else {
       response = "Hello. How can I assist you?";
     }
   }
 
   jarvisReply.textContent = response;
 }
-
-// Manual input support (optional)
-// You can add a textbox + button for manual commands if you want
 
 // =================
 // Theme management
@@ -396,7 +619,8 @@ function setTheme(theme) {
   document.body.classList.add(theme);
   currentTheme = theme;
   localStorage.setItem(STORAGE_KEYS.THEME, theme);
-  renderBudgetChart(); // Re-render chart to update colors
+  // Re-render chart and expenses display to update colors/values
+  renderExpenses(); // This will also trigger chart update
 }
 
 function loadTheme() {
@@ -405,7 +629,7 @@ function loadTheme() {
     setTheme(savedTheme);
     themeSelect.value = savedTheme;
   } else {
-    setTheme("light"); // Default theme
+    setTheme("light");
   }
 }
 
@@ -417,7 +641,7 @@ startBtn.addEventListener("click", () => {
   if (!recognition) {
     recognition = initSpeechRecognition();
   }
-  if (recognition) { // Only start if recognition is initialized
+  if (recognition) {
     if (!listening) {
       recognition.start();
     } else {
@@ -430,26 +654,49 @@ themeSelect.addEventListener("change", (e) => {
   setTheme(e.target.value);
 });
 
-// Event listeners for new Add Task/Note buttons
+// Event listeners for new Add Task/Note/Expense buttons
 if (addTaskBtn) {
   addTaskBtn.addEventListener("click", () => {
     addTask(newTaskInput.value, newTaskDueDate.value);
-    newTaskInput.value = ""; // Clear input
-    newTaskDueDate.value = ""; // Clear due date input
+    newTaskInput.value = "";
+    newTaskDueDate.value = "";
   });
 }
 
 if (addNoteBtn) {
   addNoteBtn.addEventListener("click", () => {
     addNote(newNoteInput.value);
-    newNoteInput.value = ""; // Clear input
+    newNoteInput.value = "";
   });
 }
 
+if (addExpenseBtn) {
+  addExpenseBtn.addEventListener("click", () => {
+    addExpense(newExpenseAmountInput.value, newExpenseDescInput.value);
+    newExpenseAmountInput.value = "";
+    newExpenseDescInput.value = "";
+  });
+}
+
+// Event listeners for export/import
+if (exportExpensesCsvBtn) {
+    exportExpensesCsvBtn.addEventListener("click", exportExpensesToCsv);
+}
+
+if (importCsvBtn) {
+    importCsvBtn.addEventListener("click", () => {
+        // Trigger the hidden file input click
+        importCsvFile.click();
+    });
+}
+
+if (importCsvFile) {
+    importCsvFile.addEventListener("change", importCsvData);
+}
 
 // On load
 renderTasks();
 renderNotes();
+renderExpenses(); // Render expenses on load
 updateGamificationUI();
 loadTheme();
-renderBudgetChart();

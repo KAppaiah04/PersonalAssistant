@@ -40,22 +40,22 @@
 
       <div class="card add-task">
         <h4>Add New Task</h4>
-        <input type="text" id="newTaskInput" placeholder="Enter new task description"
-          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        <input type="text" id="newTaskDueDate" placeholder="Due Date (YYYY-MM-DD)"
-          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px;">
-        <button id="addTaskBtn"
-          style="background-color: var(--primary-color); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Add
-          Task</button>
+        <input type="text" id="newTaskInput" placeholder="Enter new task description">
+        <input type="text" id="newTaskDueDate" placeholder="Due Date (YYYY-MM-DD)">
+        <button id="addTaskBtn">Add Task</button>
       </div>
 
       <div class="card add-note">
         <h4>Add New Note</h4>
-        <textarea id="newNoteInput" placeholder="Enter new note" rows="3"
-          style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
-        <button id="addNoteBtn"
-          style="background-color: var(--primary-color); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">Add
-          Note</button>
+        <textarea id="newNoteInput" placeholder="Enter new note" rows="3"></textarea>
+        <button id="addNoteBtn">Add Note</button>
+      </div>
+
+      <div class="card add-expense">
+        <h4>Add New Expense</h4>
+        <input type="number" id="newExpenseAmountInput" placeholder="Amount (e.g., 25.50)" step="0.01">
+        <input type="text" id="newExpenseDescInput" placeholder="Description (e.g., Coffee, Groceries)">
+        <button id="addExpenseBtn">Add Expense</button>
       </div>
 
       <div class="card upcoming-tasks">
@@ -66,8 +66,13 @@
 
       <div class="card budget-overview">
         <h4>Budget Overview</h4>
-        <p id="budgetOverview">60% used this month</p>
+        <p id="budgetOverview">Overall spending summary</p>
         <canvas id="budgetChart" width="300" height="150"></canvas>
+        <p id="totalExpensesDisplay">Total: $0.00</p> <div class="expenses-list-container">
+            <h4>Recent Expenses</h4>
+            <ul id="expensesList">
+                </ul>
+        </div>
       </div>
 
       <div class="card recent-notes">
@@ -79,6 +84,14 @@
       <div class="card daily-recommendation">
         <h4>Daily Recommendation</h4>
         <p>Start with tasks closest to deadline</p>
+      </div>
+
+      <div class="card data-management">
+        <h4>Data Management</h4>
+        <button id="exportExpensesCsvBtn">Export Expenses (CSV)</button>
+        <input type="file" id="importCsvFile" accept=".csv" style="display: none;">
+        <button id="importCsvBtn">Import Data (CSV)</button>
+        <p style="font-size: 0.9em; color: #666; margin-top: 10px;">(CSV import/export for expenses only)</p>
       </div>
     </section>
 
