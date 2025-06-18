@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Jarvis Personal AI Assistant</title>
   <link rel="stylesheet" href="style.css" />
+  <!-- Optionally add Google Fonts for 'Inter' for the best visual match -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -15,7 +16,8 @@
     <div class="theme-switcher">
       <label for="themeSelect">Choose Theme:</label>
       <select id="themeSelect">
-        <option value="dark">Dark</option> <option value="light">Light</option>
+        <option value="dark">Dark</option> <!-- Default to Dark for Netflix-like UI -->
+        <option value="light">Light</option>
         <option value="vibrant">Vibrant</option>
       </select>
     </div>
@@ -30,13 +32,13 @@
       </div>
       <div class="box jarvis-response">
         <h2>Jarvis's Response</h2>
-        <p id="jarvisReply"></p>
+        <p id="jarvisReply">Hello! I'm Jarvis, your personal AI assistant. Say 'Activate Jarvis' to begin.</p>
       </div>
       <div class="box manual-entry">
         <h2>Manual Quick Entry</h2>
         <div class="entry-section">
           <h3>New Task:</h3>
-          <input type="text" id="newTaskText" placeholder="e.g., Get eggs by 5 PM">
+          <input type="text" id="newTaskText" placeholder="e.g., Buy groceries by 5 PM">
           <label for="newTaskDueDate" class="input-label">Due Date:</label>
           <input type="date" id="newTaskDueDate">
           <label for="newTaskCategory" class="input-label">Category:</label>
@@ -47,6 +49,7 @@
             <option value="Home">Home</option>
             <option value="Health">Health</option>
             <option value="Shopping">Shopping</option>
+            <option value="Learning">Learning</option>
           </select>
           <button id="addTaskBtn">Add Task</button>
         </div>
@@ -78,8 +81,8 @@
           <button id="addTransactionBtn">Add Transaction</button>
         </div>
         <div class="entry-section">
-          <h3>Set Budget Goal:</h3>
-          <label for="budgetGoalAmount" class="input-label">Monthly Goal:</label>
+          <h3>Set Monthly Budget Goal:</h3>
+          <label for="budgetGoalAmount" class="input-label">Goal Amount:</label>
           <input type="number" id="budgetGoalAmount" placeholder="e.g., 1000">
           <button id="setBudgetGoalBtn">Set Budget Goal</button>
         </div>
@@ -91,15 +94,17 @@
       <div class="card upcoming-tasks">
         <h4>Your Tasks</h4>
         <ul id="taskList">
-          </ul>
+          <!-- Tasks will be rendered here -->
+        </ul>
       </div>
       <div class="card recent-notes">
         <h4>Your Notes</h4>
         <ul id="notesList">
-          </ul>
+          <!-- Notes will be rendered here -->
+        </ul>
       </div>
       <div class="card budget-overview">
-        <h4>Budget Visuals</h4>
+        <h4>Budget Overview</h4>
         <p id="currentBudgetGoal">No budget goal set.</p>
         <canvas id="budgetChart" width="300" height="150"></canvas>
         <p id="budgetSummary">No budget data yet. Record some transactions!</p>
@@ -111,11 +116,16 @@
     </section>
 
     <section class="gamification">
-      <h2>Productivity Stats</h2>
-      <p>Streak: <span id="streakCount">0</span> days</p>
-      <p>Points: <span id="pointsCount">0</span></p>
-      <div id="badges" class="badges">
+      <h2>Productivity Stats & Achievements</h2>
+      <div class="stats-container">
+        <p>Streak: <span id="streakCount">0</span> days</p>
+        <p>Points: <span id="pointsCount">0</span></p>
+      </div>
+      <div class="badges-container-wrapper">
+        <div id="badges" class="badges">
+          <!-- Badges will be shown here -->
         </div>
+      </div>
     </section>
 
     <section class="data-management">
@@ -127,7 +137,7 @@
   </main>
 
   <footer>
-    <p>© 2025 Jarvis Assistant</p>
+    <p>&copy; 2025 Jarvis Personal AI Assistant. All rights reserved.</p>
   </footer>
 
   <script src="app.js"></script>
