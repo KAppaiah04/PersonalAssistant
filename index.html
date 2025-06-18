@@ -2,111 +2,124 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jarvis Personal AI Assistant</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="path/to/your/favicon.ico" type="image/x-icon"> 
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jarvis Personal AI Assistant</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <header>
-        <div class="header-left">
-            <img src="path/to/your/jarvis_icon.png" alt="Jarvis Icon" class="jarvis-icon"> 
-            <h1>Jarvis Personal AI Assistant</h1>
+  <header>
+    <h1>Jarvis Personal AI Assistant</h1>
+    <div class="theme-switcher">
+      <label for="themeSelect">Choose Theme:</label>
+      <select id="themeSelect">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="vibrant">Vibrant</option>
+      </select>
+    </div>
+    <button id="startBtn" aria-label="Activate Jarvis">Activate Jarvis</button>
+  </header>
+
+  <main>
+    <section class="assistant-section">
+      <div class="box">
+        <h2>Voice Command</h2>
+        <p id="userSpeech">You said: "Hey Jarvis"</p>
+      </div>
+      <div class="box">
+        <h2>Jarvis's Response</h2>
+        <p id="jarvisReply"></p>
+      </div>
+      <div class="box manual-entry">
+        <h2>Manual Quick Entry</h2>
+        <div class="entry-section">
+          <h3>New Task:</h3>
+          <input type="text" id="newTaskText" placeholder="e.g., Get eggs by 5 PM">
+          <input type="date" id="newTaskDueDate">
+          <select id="newTaskCategory">
+            <option value="">Select Category</option>
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Home">Home</option>
+          </select>
+          <button id="addTaskBtn">Add Task</button>
         </div>
-        <div class="header-right">
-            <div class="theme-switcher">
-                <label for="themeSelect">Theme:</label>
-                <select id="themeSelect">
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="vibrant">Vibrant</option>
-                </select>
-            </div>
-            <button id="startBtn" aria-label="Activate Jarvis Voice Assistant">
-                <span class="icon-mic"></span> Activate Jarvis
-            </button>
+        <div class="entry-section">
+          <h3>New Note:</h3>
+          <input type="text" id="newNoteText" placeholder="e.g., Ideas for Q3 project">
+          <select id="newNoteCategory">
+            <option value="">Select Category</option>
+            <option value="Meeting">Meeting</option>
+            <option value="Idea">Idea</option>
+            <option value="Reminder">Reminder</option>
+          </select>
+          <button id="addNoteBtn">Add Note</button>
         </div>
-    </header>
+        <div class="entry-section">
+          <h3>Record Transaction:</h3>
+          <input type="number" id="transactionAmount" placeholder="e.g., 50.00">
+          <input type="text" id="transactionDescription" placeholder="e.g., Groceries">
+          <select id="transactionType">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+          <button id="addTransactionBtn">Add Transaction</button>
+        </div>
+        <div class="entry-section">
+          <h3>Budget Goal:</h3>
+          <input type="number" id="budgetGoalAmount" placeholder="e.g., 1000">
+          <button id="setBudgetGoalBtn">Set Budget Goal</button>
+        </div>
+      </div>
+    </section>
 
-    <main>
-        <section class="interaction-area">
-            <div class="card voice-interaction-card">
-                <h2>Voice Command</h2>
-                <div class="voice-display">
-                    <p id="userSpeech" class="speech-text">Say "Hey Jarvis" followed by your request...</p>
-                </div>
-            </div>
-            <div class="card jarvis-reply-card">
-                <h2>Jarvis's Response</h2>
-                <div class="reply-display">
-                    <p id="jarvisReply" class="reply-text">Waiting for command...</p>
-                </div>
-            </div>
+    <section class="dashboard">
+      <h2>Dashboard Overview</h2>
+      <div class="card upcoming-tasks">
+        <h4>Your Tasks</h4>
+        <ul id="taskList">
+          </ul>
+      </div>
+      <div class="card recent-notes">
+        <h4>Your Notes</h4>
+        <ul id="notesList">
+          </ul>
+      </div>
+      <div class="card budget-overview">
+        <h4>Budget Visuals</h4>
+        <p id="currentBudgetGoal">No budget goal set.</p>
+        <canvas id="budgetChart" width="300" height="150"></canvas>
+        <p id="budgetSummary">No budget data yet. Record some transactions!</p>
+      </div>
+      <div class="card daily-recommendation">
+        <h4>Daily Recommendation</h4>
+        <p id="dailyRecommendationText">Start with tasks closest to deadline</p>
+      </div>
+    </section>
 
-            <div class="card manual-input-card">
-                <h2>Manual Quick Entry</h2>
-                <div class="input-group">
-                    <label for="taskInput">New Task:</label>
-                    <input type="text" id="taskInput" placeholder="e.g., Call John by 3 PM">
-                    <button id="addTaskBtn">Add Task</button>
-                </div>
-                <div class="input-group">
-                    <label for="noteInput">New Note:</label>
-                    <input type="text" id="noteInput" placeholder="e.g., Ideas for Q3 project">
-                    <button id="addNoteBtn">Add Note</button>
-                </div>
-                <div class="input-group">
-                    <label for="budgetInput">Record Transaction:</label>
-                    <input type="number" id="budgetInput" placeholder="e.g., 50 (for $50 spent)">
-                    <button id="addBudgetBtn">Add Budget Item</button>
-                </div>
-            </div>
-        </section>
+    <section class="gamification">
+      <h2>Productivity Stats</h2>
+      <p>Streak: <span id="streakCount">0</span> days</p>
+      <p>Points: <span id="pointsCount">0</span></p>
+      <div id="badges" class="badges">
+        </div>
+    </section>
 
-        <section class="dashboard-area">
-            <div class="card tasks-card">
-                <h2>Your Tasks</h2>
-                <ul id="taskList" class="data-list">
-                    </ul>
-                <p class="empty-state" id="noTasksMessage">No tasks added yet. Let's get productive!</p>
-            </div>
+    <section class="data-management">
+      <h2>Data Management</h2>
+      <button id="exportDataBtn">Export All Data (JSON)</button>
+      <input type="file" id="importFileInput" accept=".json" style="display: none;">
+      <button id="importDataBtn">Import Data (JSON)</button>
+    </section>
+  </main>
 
-            <div class="card notes-card">
-                <h2>Your Notes</h2>
-                <ul id="notesList" class="data-list">
-                    </ul>
-                <p class="empty-state" id="noNotesMessage">No notes here. Jot down your thoughts!</p>
-            </div>
+  <footer>
+    <p>© 2025 Jarvis Assistant</p>
+  </footer>
 
-            <div class="card budget-card">
-                <h2>Budget Visuals</h2>
-                <canvas id="budgetChart"></canvas>
-                <p class="budget-summary" id="budgetSummaryText">Overall spending trends.</p>
-            </div>
-        </section>
-
-        <section class="achievements-area">
-            <div class="card achievements-summary-card">
-                <h2>Productivity Stats</h2>
-                <p class="stat-item">Streak: <span id="streakCount" class="stat-value">0</span> days</p>
-                <p class="stat-item">Points: <span id="pointsCount" class="stat-value">0</span></p>
-            </div>
-            <div class="card badges-card">
-                <h2>Badges Earned</h2>
-                <div id="badges" class="badges-container">
-                    </div>
-                <p class="empty-state" id="noBadgesMessage">No badges yet. Keep achieving!</p>
-            </div>
-        </section>
-    </main>
-
-    <footer>
-        <p>&copy; 2025 Jarvis Personal AI Assistant. All rights reserved.</p>
-    </footer>
-
-    <script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 
 </html>
